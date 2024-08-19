@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="base-url" id="base-url" content="{{ url('/') }}">
+    <meta name="base-url" id="base-url" content="{{ env('APP_URL') }}">
     <!-- currently using it -->
     <title>@yield('title') | {{ @base_settings('meta_title') }}</title>
     <!-- Theme style -->
@@ -17,7 +17,7 @@
     <meta property="og:title" content="{{ @base_settings('meta_title') }}">
     <meta property="og:description" content="{{ @base_settings('meta_description') }}">
     <meta property="og:image" content="{{ metaImage(@base_settings('meta_image')) }}">
-    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:url" content="{{ env('APP_URL') }}">
 
     <link rel="stylesheet" href="{{ global_asset('vendor/Saas/Assets/css/bootstrap/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ global_asset('vendor/Saas/Assets/css/slick.min.css') }}">

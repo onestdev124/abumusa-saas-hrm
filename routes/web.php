@@ -32,7 +32,7 @@ Route::get('tt',function(){
 });
 
 Route::middleware(['demo.mode'])->group(function () {
-    if (!in_array(url('/'), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas')) {
+    if (!in_array(env('APP_URL'), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas')) {
 
         $middleware = [];
 

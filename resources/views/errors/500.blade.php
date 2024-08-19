@@ -16,7 +16,7 @@
             <h1 class="display-4 mt-5">500</h1>
             <p class="lead">Internal Server Error</p>
             <p>Sorry, The 500 Internal Server Error happens when the server encounters an unexpected condition that prevents it from fulfilling the request. This is a general message indicating that the server knows something is wrong, but can't be more specific about the exact problem.</p>
-            <a href="{{ url('/') }}" class="btn btn-primary">Go Back to Home</a>
+            <a href="{{ env('APP_URL') }}" class="btn btn-primary">Go Back to Home</a>
         </div>
     </div>
 </div>

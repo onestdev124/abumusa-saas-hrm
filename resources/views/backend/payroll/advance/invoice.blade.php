@@ -10,7 +10,7 @@
       <header>
         <div class="row align-items-center">
             <div class="col-sm-7  text-sm-start mb-3 mb-sm-0">
-                <img id="logo" src="{{url('/') }}/assets/logo-dark.png" title="Koice" alt="Koice">
+                <img id="logo" src="{{env('APP_URL') }}/assets/logo-dark.png" title="Koice" alt="Koice">
             </div>
             <div class="col-sm-5 text-sm-end">
                 <h4 class="text-7 mb-0">{{ _trans('payroll.Invoice') }}</h4>
