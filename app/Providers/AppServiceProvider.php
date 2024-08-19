@@ -98,10 +98,10 @@ class AppServiceProvider extends ServiceProvider
                 return HrmLanguage::with('language')->where('status_id', 1)->get();
             });
             
-            if (env('APP_HTTPS') == true) {
-                URL::forceScheme('https');
-                // $this->app['request']->server->set('HTTPS', true);
-            }
+            // if (env('APP_HTTPS') == true) {
+            //     URL::forceScheme('https');
+            //     // $this->app['request']->server->set('HTTPS', true);
+            // }
 
             Paginator::useBootstrapFive();
         } catch (\Exception $e) {
