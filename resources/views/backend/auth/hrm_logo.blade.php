@@ -1,5 +1,5 @@
 <div class="sidebar-top-side ">
-    <a href="{{ url('/') }}" class="img-tag">
+    <a href="{{ currentUrl() }}" class="img-tag">
         @if(env('FILESYSTEM_DRIVER') == 'server')
             <img src="{{ Storage::disk('s3')->url(config('settings.app')['company_logo_frontend']) }}"
                  class="hourworx-logo-img"

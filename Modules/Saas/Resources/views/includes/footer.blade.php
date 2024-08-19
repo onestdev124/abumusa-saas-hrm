@@ -11,7 +11,7 @@
                     <span class="copyright-text">©
                         <script>
                             document.write(new Date().getFullYear())
-                        </script> <a href="{{ url('/') }}"> {{ env('APP_NAME') }} All Rights
+                        </script> <a href="{{ currentUrl() }}"> {{ env('APP_NAME') }} All Rights
                             Reserved.</a>
                     </span>
                 </div>

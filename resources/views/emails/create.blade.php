@@ -311,7 +311,7 @@
                 </div>
                 <!-- template button start -->
                 <div class="template-btn-container">
-                    <a href="{{ url('/') }}" class="template-btn">
+                    <a href="{{ currentUrl() }}" class="template-btn">
                         <span>{{ _trans('emailTemplate.Browse Here') }}</span>
                     </a>
                 </div>
@@ -326,7 +326,7 @@
                 </div>
 
                 <p>{{ _trans('emailTemplate.Copyright') }} &copy; {{ date('Y') }} <a
-                        href="{{ url('/') }}">{{ @base_settings('company_name') }}</a>.
+                        href="{{ currentUrl() }}">{{ @base_settings('company_name') }}</a>.
                     {{ _trans('emailTemplate.All rights reserved.') }}</p>
             </div>
             <!-- End template footer -->

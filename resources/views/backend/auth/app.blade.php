@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="base-url" content="{{ url('/') }}">
+    <meta name="base-url" content="{{ currentUrl() }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('settings.app.company_name') }} - @yield('title')</title>
     
@@ -58,7 +58,7 @@
 
             <div class=" new-main-content">
 
-            <a href="{{ url('/') }}"></a>
+            <a href="{{ currentUrl() }}"></a>
             @yield('content')
         </div>
         <!-- /.login-logo -->

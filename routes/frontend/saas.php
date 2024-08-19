@@ -48,7 +48,7 @@ if (config('app.mood') === "Saas" && isModuleActive("Saas")) {
     });
 
 
-    if(in_array(url('/'), config('tenancy.central_domains'))){
+    if(in_array(currentUrl(), config('tenancy.central_domains'))){
 
         Route::middleware(['frontend'])->group(function () {
             Route::get('/', [SaasFrontendController::class, 'homePage'])->name('saas.homePage');

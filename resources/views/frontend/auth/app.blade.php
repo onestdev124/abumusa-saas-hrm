@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="base-url" content="{{ url('/') }}">
+    <meta name="base-url" content="{{ currentUrl() }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ @base_settings('company_name') }} - @yield('title')</title>
 
@@ -31,7 +31,7 @@
                     @yield('content')
                 </div>
             </div>
-            @if (in_array(url('/'), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas'))
+            @if (in_array(currentUrl(), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas'))
                 <div class="d-flex justify-content-around pt-3">
                     <small class="fw-light"><a href="{{ env('APP_URL')}}/pages/privacy-policy" target="_blank">Privacy Policy</a></small>
                     <small class="fw-light"><a href="{{ env('APP_URL')}}/pages/terms-of-use" target="_blank">Terms & Conditions</a></small>

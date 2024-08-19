@@ -52,7 +52,7 @@ use App\Models\Tenant;
 |
 */
 
-if (!in_array(url('/'), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas') ) {
+if (!in_array(currentUrl(), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas') ) {
     $middleware = [];
 
     if (!config('app.single_db')) {

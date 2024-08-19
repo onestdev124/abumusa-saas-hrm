@@ -209,7 +209,7 @@ class FrontSeeder extends Seeder
             [
                 'name'  => 'Home',
                 'position'  => 1,
-                'url'   => url('/'),
+                'url'   => currentUrl(),
                 'type'  => 1,
                 'created_at'    => Carbon::now()
             ]

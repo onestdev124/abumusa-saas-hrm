@@ -331,7 +331,7 @@
                 </div>
 
                 <p>{{ _trans('emailTemplate.Copyright') }} &copy; {{ date('Y') }} <a
-                        href="{{ url('/') }}">{{ @base_settings('company_name') }}</a>.
+                        href="{{ currentUrl() }}">{{ @base_settings('company_name') }}</a>.
                     {{ _trans('emailTemplate.All rights reserved.') }}</p>
             </div>
             <!-- End template footer -->

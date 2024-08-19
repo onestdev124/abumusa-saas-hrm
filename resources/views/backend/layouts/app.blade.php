@@ -13,7 +13,7 @@ App::setLocale(userLocal());
     @if (env('APP_ENV') == 'production' && env('APP_HTTPS') == true)
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     @endif
-    <meta name="base-url" id="base-url" content="{{ url('/') }}">
+    <meta name="base-url" id="base-url" content="{{ currentUrl() }}">
     {{-- Header start --}}
     @include('backend.partials.header')
     {{-- Header start --}}
@@ -21,7 +21,7 @@ App::setLocale(userLocal());
 </head>
 <body class="default-theme" style="background-image: url(' {{ background_asset(@base_settings('backend_image')) }}')">
     <input type="text" hidden value="{{ background_asset(@base_settings('backend_image')) }}" id="background_image">
-    <input type="text" hidden value="{{ url('/') }}" id="url">
+    <input type="text" hidden value="{{ currentUrl() }}" id="url">
     <input type="text" hidden value="{{ config('settings.app.company_name') }}" id="site_name">
     <input type="text" hidden value="{{ settings('time_format') }}" id="time_format">
     <input type="text" hidden value="{{ \Carbon\Carbon::now()->format('Y/m/d') }}" id="defaultDate">
