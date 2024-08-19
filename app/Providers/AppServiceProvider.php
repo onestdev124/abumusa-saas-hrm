@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
@@ -97,6 +98,13 @@ class AppServiceProvider extends ServiceProvider
             $this->app->singleton('hrm_languages', function () {
                 return HrmLanguage::with('language')->where('status_id', 1)->get();
             });
+
+            $this->app->singleton('url', function ($app) {
+                return new UrlGenerator($app['router']->getRoutes(), $app->rebinding('request', function ($app, $request) {
+                    $app['url']->setRequest($request);
+                }));
+            });
+            
             
             if (env('APP_HTTPS') == true) {
                 URL::forceScheme('https');
