@@ -38,6 +38,11 @@ class AppServiceProvider extends ServiceProvider
     }
     public function boot()
     {
+        if (env('APP_HTTPS') == true) {
+            URL::forceScheme('https');
+            $this->app['request']->server->set('HTTPS', true);
+        }
+
         try {
             DB::connection()->getPdo();
             if (Schema::hasTable('settings')) {
@@ -97,11 +102,6 @@ class AppServiceProvider extends ServiceProvider
             $this->app->singleton('hrm_languages', function () {
                 return HrmLanguage::with('language')->where('status_id', 1)->get();
             });
-            
-            if (env('APP_HTTPS') == true) {
-                URL::forceScheme('https');
-                $this->app['request']->server->set('HTTPS', true);
-            }
 
             Paginator::useBootstrapFive();
         } catch (\Exception $e) {
