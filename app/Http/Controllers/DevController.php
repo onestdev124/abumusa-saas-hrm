@@ -65,7 +65,7 @@ class DevController extends Controller
             'actionText' => 'View My Site',
             'actionURL' => [
                 'app' => '',
-                'web' => env('APP_URL'),
+                'web' => url('/'),
                 'target' => '_blank',
             ],
             'sender_id' => 46

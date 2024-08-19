@@ -47,7 +47,7 @@ class SaasCompanyController extends Controller
             return [
                 'id' => $data->id,
                 'company_name' => $data->company_name,
-                'subdomain' => $subdomain ?? env('APP_URL'),
+                'subdomain' => $subdomain ?? url('/'),
                 'url' => $url,
             ];
         });

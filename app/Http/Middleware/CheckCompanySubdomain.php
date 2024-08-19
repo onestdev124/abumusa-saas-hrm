@@ -18,9 +18,9 @@ class CheckCompanySubdomain
         // Check the current domain company and tenancy settings
         $currentDomainCompany = getCurrentDomainCompany();
         $centralDomains = config('tenancy.central_domains');
-        $currentUrl = env('APP_URL');
+        $currentUrl = url('/');
 
-        if (!in_array(env('APP_URL'), config('tenancy.central_domains'))){
+        if (!in_array(url('/'), config('tenancy.central_domains'))){
             if ($currentDomainCompany->is_main_company == 'no' && ($currentDomainCompany->status_id == 4 || isExpiredRunningSubscription())) {
                 abort(429);
            }

@@ -16,14 +16,14 @@ class ExpireNotificationController extends Controller
 
         $isSingleDBTenantCompany = (
                                     config('app.single_db') 
-                                    && !in_array(env('APP_URL'), config('tenancy.central_domains')) 
+                                    && !in_array(url('/'), config('tenancy.central_domains')) 
                                     && config('app.mood') === 'Saas' && isModuleActive('Saas') 
                                     && getCurrentDomainCompany()
                                 ) ? true : false;
 
         $isMultiDBTenantCompany = (
                                     !config('app.single_db') 
-                                    && !in_array(env('APP_URL'), config('tenancy.central_domains')) 
+                                    && !in_array(url('/'), config('tenancy.central_domains')) 
                                     && config('app.mood') === 'Saas' && isModuleActive('Saas') 
                                     && getCurrentDomainCompany()
                                 ) ? true : false;

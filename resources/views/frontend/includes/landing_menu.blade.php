@@ -17,7 +17,7 @@
                             <div class="collapse navbar-collapse" id="navbar">
                                 <ul class="navbar-nav navbar-nav-list ml-auto py-4 py-md-0 align-items-center">
                                     <li class="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
-                                        <a class="nav-link" href="{{ env('APP_URL') }}">{{__('Home') }}</a>
+                                        <a class="nav-link" href="{{ url('/') }}">{{__('Home') }}</a>
                                     </li>
                                     <li class="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
                                         <a class="nav-link" href="{{ url('/features') }}">{{__('Features') }}</a>

@@ -48,7 +48,7 @@
             </div>
             <div class="copyright">
                 <p>{{ _trans('frontend.Copyright') }} {{ '@' . date('Y') }} <a
-                        href="{{ env('APP_URL') }}">{{ @base_settings('company_name') }}.</a>
+                        href="{{ url('/') }}">{{ @base_settings('company_name') }}.</a>
                     {{ _trans('frontend.All Rights Reserved.') }}</p>
             </div>
         </div>

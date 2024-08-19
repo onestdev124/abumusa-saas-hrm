@@ -780,7 +780,7 @@ if (!function_exists('settings')) {
     function settings($key)
     {
         try {
-            if (!auth()->id() && config('app.single_db') && !in_array(env('APP_URL'), config('tenancy.central_domains'))) {
+            if (!auth()->id() && config('app.single_db') && !in_array(url('/'), config('tenancy.central_domains'))) {
                 return CompanyConfig::where('key', $key)->where('company_id', getCurrentDomainCompany()->id)->first()?->value;
             } else {
                 return CompanyConfig::where('key', $key)->where('company_id', 1)->first()?->value;
@@ -885,7 +885,7 @@ if (!function_exists('showTimeFromTimeStamp')) {
 }
 function base_settings($data, $default = null)
 {
-    if ((!auth()->id() || auth()->id()) && (config('app.single_db') && !in_array(env('APP_URL'), config('tenancy.central_domains')))) {
+    if ((!auth()->id() || auth()->id()) && (config('app.single_db') && !in_array(url('/'), config('tenancy.central_domains')))) {
         return Setting::where('name', $data)->where('company_id', getCurrentDomainCompany()->id)->first()?->value;
     } else {
         return Setting::where('name', $data)->where('company_id', 1)->first()?->value;
@@ -2257,7 +2257,7 @@ if (!function_exists('isMainCompany')) {
     function isMainCompany()
     {
         if (
-            in_array(env('APP_URL'), config('tenancy.central_domains'))
+            in_array(url('/'), config('tenancy.central_domains'))
             && isModuleActive('Saas')
             && mainCompany()->is_main_company == 'yes'
             && config('app.mood') === 'Saas'
@@ -2467,7 +2467,7 @@ if (!function_exists('checkSingleCompanyIsDeactivated')) {
 if (!function_exists('getMainCompanyInfo')) {
     function getMainCompanyInfo()
     {
-        $apiUrl = env('APP_URL') . '/api/saas/main-company/basic-info';
+        $apiUrl = url('/') . '/api/saas/main-company/basic-info';
         $client = new Client();
         $res = $client->request('GET', $apiUrl);
         $responseBody = json_decode($res->getBody(), true);

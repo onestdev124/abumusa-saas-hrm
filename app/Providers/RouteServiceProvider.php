@@ -50,7 +50,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/web.php'));
 
 
-            Route::domain('blog.' . env('APP_URL'))
+            Route::domain('blog.' . url('/'))
                 ->middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/company.php'));

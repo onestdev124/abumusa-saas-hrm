@@ -42,6 +42,6 @@ class FirebaseController extends Controller
 
 
     function test(){
-       return $this->sendFirebaseNotification(59,'leave_request',1,env('APP_URL'));
+       return $this->sendFirebaseNotification(59,'leave_request',1,url('/'));
     }
 }

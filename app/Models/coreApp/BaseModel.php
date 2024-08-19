@@ -22,7 +22,7 @@ class BaseModel extends Model
     // {
     //     parent::boot();
 
-    //     $tenant = (!in_array(env('APP_URL'), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas'));
+    //     $tenant = (!in_array(url('/'), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas'));
     //     $regular = config('app.mood') !== 'Saas' && !isModuleActive('Saas') ? true : false;
 
     //     if (!app()->runningInConsole() && ($tenant || $regular)) {
