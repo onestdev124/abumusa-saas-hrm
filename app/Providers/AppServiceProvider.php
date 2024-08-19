@@ -100,7 +100,7 @@ class AppServiceProvider extends ServiceProvider
             
             if (env('APP_HTTPS') == true) {
                 URL::forceScheme('https');
-                $this->app['request']->server->set('HTTPS', true);
+                // $this->app['request']->server->set('HTTPS', true);
             }
 
             Paginator::useBootstrapFive();
