@@ -2639,6 +2639,7 @@ if (!function_exists('isExpiredRunningSubscription')) {
 if (!function_exists('currentUrl')) {
     function currentUrl()
     {
+        return url('/');
         $fullUrl = request()->fullUrl();
         $domainWithScheme = parse_url($fullUrl, PHP_URL_SCHEME) . '://' . parse_url($fullUrl, PHP_URL_HOST);
         
