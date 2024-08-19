@@ -2560,7 +2560,6 @@ if (!function_exists('tenantMigrationPaths')) {
 if (!function_exists('getCurrentDomainCompany')) {
     function getCurrentDomainCompany()
     {
-        dd(request()->getHost(), subdomainName(request()->getHost()));
         return  @Company::query()
             ->where(function ($q) {
                 $q->where('subdomain', request()->getHost())
