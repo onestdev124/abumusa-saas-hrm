@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <title>{{ @base_settings('company_name') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta content="Onest Multipurpose Admin &amp; Dashboard Template" name="description" />
-    <meta content="Onesttech" name="author" />
+    <meta content="Taqanah Multipurpose Admin &amp; Dashboard Template" name="description" />
+    <meta content="Taqanah HR" name="author" />
     <!-- fontawesome -->
     <link rel="stylesheet" href="{{ asset('backend/') }}/css/all.min.css">
     <!-- Custom CSS  start -->

@@ -12,7 +12,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="mailto:sales@onesttech.com">
+                        <a href="mailto:sales@taqanah.com">
                             <i class="fa-solid fa-envelope"></i>
                             <span>{{ base_settings('email') }}</span>
                         </a>

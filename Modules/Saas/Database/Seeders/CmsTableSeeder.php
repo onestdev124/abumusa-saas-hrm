@@ -35,7 +35,7 @@ class CmsTableSeeder extends Seeder
         return [
             [
                 'title' => 'Grow Your Business With ONEST HRM',
-                'slug' => 'grow-your-business-with-onest-hrm',
+                'slug' => 'grow-your-business-with-taqanah-hrm',
                 'description' => "Think HRM Software Is Just About Contact Management? Think Again. HubSpot HRM Has Free Tools For Everyone On Your Team, It's 100% Free",
                 'attachment_id' => 49,
                 'link' => 'https://www.youtube.com/watch?v=Gusi6D71Cnc',
