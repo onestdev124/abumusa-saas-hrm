@@ -33,9 +33,9 @@
             </div>
             @if (in_array(url('/'), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas'))
                 <div class="d-flex justify-content-around pt-3">
-                    <small class="fw-light"><a href="{{ url('/')}}/pages/privacy-policy" target="_blank">Privacy Policy</a></small>
-                    <small class="fw-light"><a href="{{ url('/')}}/pages/terms-of-use" target="_blank">Terms & Conditions</a></small>
-                    <small class="fw-light"><a href="{{ url('/')}}/pages/support-24-7" target="_blank">24/7 Support</a></small>
+                    <small class="fw-light"><a href="{{ env('APP_URL')}}/pages/privacy-policy" target="_blank">Privacy Policy</a></small>
+                    <small class="fw-light"><a href="{{ env('APP_URL')}}/pages/terms-of-use" target="_blank">Terms & Conditions</a></small>
+                    <small class="fw-light"><a href="{{ env('APP_URL')}}/pages/support-24-7" target="_blank">24/7 Support</a></small>
                 </div> 
             @endif
         </section>

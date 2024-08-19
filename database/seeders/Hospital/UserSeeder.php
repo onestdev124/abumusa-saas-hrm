@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         try {
             $AdminUser = [
                 'name' => "Admin",
-                'email' => 'admin@taqanah.com',
+                'email' => 'admin@onesttech.com',
                 'is_admin' => 1,
                 'is_hr' => 0,
                 'role_id' => 2,
@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
             DB::table('users')->insert($AdminUser);
             $HrUser = [
                 'name' => "HR",
-                'email' => 'hr@taqanah.com',
+                'email' => 'hr@onesttech.com',
                 'is_admin' => 0,
                 'is_hr' => 1,
                 'role_id' => 3,
@@ -59,7 +59,7 @@ class UserSeeder extends Seeder
             DB::table('users')->insert($HrUser);
             $doctorUser = [
                 'name' => "Doctor",
-                'email' => 'doctor@taqanah.com',
+                'email' => 'doctor@onesttech.com',
                 'is_admin' => 0,
                 'is_hr' => 0,
                 'role_id' => 4,
@@ -82,7 +82,7 @@ class UserSeeder extends Seeder
 
             $nurseUser = [
                 'name' => "Nurse",
-                'email' => 'nurse@taqanah.com',
+                'email' => 'nurse@onesttech.com',
                 'is_admin' => 0,
                 'is_hr' => 0,
                 'role_id' => 4,
@@ -102,7 +102,7 @@ class UserSeeder extends Seeder
             DB::table('users')->insert($nurseUser);
             $pharmacistUser = [
                 'name' => "Pharmacist",
-                'email' => 'pharmacist@taqanah.com',
+                'email' => 'pharmacist@onesttech.com',
                 'is_admin' => 0,
                 'is_hr' => 0,
                 'role_id' => 4,
@@ -126,7 +126,7 @@ class UserSeeder extends Seeder
 
             $Radiologist = [
                 'name' => "Radiologist",
-                'email' => 'radiologist@taqanah.com',
+                'email' => 'radiologist@onesttech.com',
                 'is_admin' => 0,
                 'is_hr' => 0,
                 'role_id' => 4,

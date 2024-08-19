@@ -41,7 +41,7 @@ class CompanySeeder extends Seeder
                 Company::firstOrCreate([
                     'name'              => 'Mr Owner',
                     'company_name'      => 'Main Company',
-                    'email'             => 'company@taqanah.com',
+                    'email'             => 'company@onesttech.com',
                 ], [
                     'phone'             => '0XXXXXXXXXX',
                     'total_employee'    => 100,

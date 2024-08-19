@@ -74,7 +74,7 @@
         </div>
         <p>
             {{ _trans('common.Sorry, you are currently unable to access the panel as the company account is deactivated') }}. {{ _trans('common.Please contact your system administrator ') }}
-            <a href="{{ url('/') }}" target="_blank">
+            <a href="{{ env('APP_URL') }}" target="_blank">
                 {{ @base_settings('company_name') }}
             </a>
             {{ _trans('common.for assistance') }}.

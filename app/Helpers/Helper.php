@@ -1556,7 +1556,7 @@ function dummyEmployeeList()
             "designation_id" => 33,
             "shift_id" => 4,
             "is_hr" => 1,
-            "email" => "hr@taqanah.com",
+            "email" => "hr@onesttech.com",
         ],
         [
             "name" => "Staff",
@@ -1568,7 +1568,7 @@ function dummyEmployeeList()
             "designation_id" => 44,
             "shift_id" => 4,
             "is_hr" => 0,
-            "email" => "staff@taqanah.com",
+            "email" => "staff@onesttech.com",
         ],
     ];
 }
@@ -1586,7 +1586,7 @@ function dummyStaffListExtended()
             "designation_id" => 44,
             "shift_id" => 4,
             "is_hr" => 0,
-            "email" => "staff" . ($i + 1) . "@taqanah.com",
+            "email" => "staff" . ($i + 1) . "@onesttech.com",
         ];
     }
     return $listExtended;
@@ -2467,7 +2467,7 @@ if (!function_exists('checkSingleCompanyIsDeactivated')) {
 if (!function_exists('getMainCompanyInfo')) {
     function getMainCompanyInfo()
     {
-        $apiUrl = url('/') . '/api/saas/main-company/basic-info';
+        $apiUrl = env('APP_URL') . '/api/saas/main-company/basic-info';
         $client = new Client();
         $res = $client->request('GET', $apiUrl);
         $responseBody = json_decode($res->getBody(), true);

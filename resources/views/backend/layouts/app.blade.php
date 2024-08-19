@@ -9,7 +9,7 @@ App::setLocale(userLocal());
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title> {{ @base_settings('company_name') }} - @yield('title')</title>
     <meta name="keywords" content="attendance, finance, hr management, employee, hrm, HRM management system, human, laravel, leave,office, office-attendance, php, report, resource">
-    <meta name="description" content="Taqanah HR Human Resource Management System Website ">
+    <meta name="description" content="Onesttech Human Resource Management System Website ">
     @if (env('APP_ENV') == 'production' && env('APP_HTTPS') == true)
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     @endif

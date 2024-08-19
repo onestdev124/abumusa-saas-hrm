@@ -256,7 +256,7 @@ class FrontSeeder extends Seeder
         $section2 = json_encode([
             'title' => 'About Us',
             'slogan' => 'One Goal, One Passion',
-            'description' => 'Taqanah HR believes in painting the perfect picture of your idea while maintaining industry standards and following upcoming trends. It is a professional software development company managed by tech-heads, engineers who are highly qualified in creating and solving issues of all kinds.
+            'description' => 'Onesttech believes in painting the perfect picture of your idea while maintaining industry standards and following upcoming trends. It is a professional software development company managed by tech-heads, engineers who are highly qualified in creating and solving issues of all kinds.
 
             This software development company was established in Dhaka, Bangladesh on September 1, 2017 and since then, it has developed a relentless focus on technical achievement both nationally and internationally.
             

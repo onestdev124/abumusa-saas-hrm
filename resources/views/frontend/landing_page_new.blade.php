@@ -83,7 +83,7 @@
                             <h4>About Us</h4>
                         </div>
                         <div class="aboutus-content">
-                            <p class="mb-15">Taqanah HR believes in painting the perfect picture of your idea while
+                            <p class="mb-15">Onesttech believes in painting the perfect picture of your idea while
                                 maintaining industry
                                 standards and following upcoming trends. It is a professional software development
                                 company

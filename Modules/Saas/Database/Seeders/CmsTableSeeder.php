@@ -35,7 +35,7 @@ class CmsTableSeeder extends Seeder
         return [
             [
                 'title' => 'Grow Your Business With ONEST HRM',
-                'slug' => 'grow-your-business-with-taqanah-hrm',
+                'slug' => 'grow-your-business-with-onest-hrm',
                 'description' => "Think HRM Software Is Just About Contact Management? Think Again. HubSpot HRM Has Free Tools For Everyone On Your Team, It's 100% Free",
                 'attachment_id' => 49,
                 'link' => 'https://www.youtube.com/watch?v=Gusi6D71Cnc',
@@ -49,7 +49,7 @@ class CmsTableSeeder extends Seeder
                 'slug' => 'hrm-with-saas-features',
                 'description' => 'Thank you for choosing our powerful Software as a Service (SaaS) platform. We are excited to have you on board and ready to help you streamline your operations, boost productivity, and achieve your business goals. Whether you are a small business owner, a member of a growing team, or part of a large enterprise, our SaaS platform is designed to meet your unique needs. Thank you for choosing our SaaS platform. We look forward to helping your business thrive in the digital age. If you ever have questions or need assistance, don\'t hesitate to contact our support team for help.',
                 'attachment_id' => 41,
-                'link' => url('/') . '/pages/content/hrm-with-saas-features',
+                'link' => env('APP_URL') . '/pages/content/hrm-with-saas-features',
                 'text_color' => '#ffffff',
                 'bg_color' => '#4F46E5',
                 'order' => 1,
@@ -69,7 +69,7 @@ class CmsTableSeeder extends Seeder
     
                 ',
                 'attachment_id' => 42,
-                'link' => url('/') . '/pages/content/powerful-saas-dashboard-panel',
+                'link' => env('APP_URL') . '/pages/content/powerful-saas-dashboard-panel',
                 'text_color' => '#000000',
                 'bg_color' => '#F1EAFF',
                 'order' => 2,
@@ -92,7 +92,7 @@ class CmsTableSeeder extends Seeder
     
                 ',
                 'attachment_id' => 43,
-                'link' => url('/') . '/pages/content/customer-success-stories',
+                'link' => env('APP_URL') . '/pages/content/customer-success-stories',
                 'text_color' => '#000000',
                 'bg_color' => '#FFFBF5',
                 'order' => 3,
@@ -112,7 +112,7 @@ class CmsTableSeeder extends Seeder
     
                 ',
                 'attachment_id' => 44,
-                'link' => url('/') . '/pages/content/get-started-with-out-saas-mobile-application',
+                'link' => env('APP_URL') . '/pages/content/get-started-with-out-saas-mobile-application',
                 'text_color' => '#000000',
                 'bg_color' => '#FFF6F6',
                 'order' => 4,
@@ -123,7 +123,7 @@ class CmsTableSeeder extends Seeder
                 'slug' => 'hrm-system',
                 'description' => 'HRM Gives You The Block & Components You Need To Create A Truly Professional Website For Your SaaS And Gives The Blocks.',
                 'attachment_id' => 46,
-                'link' => url('/') . '/pages/content/hrm-system',
+                'link' => env('APP_URL') . '/pages/content/hrm-system',
                 'text_color' => '#000000',
                 'bg_color' => '#FAF8ED',
                 'order' => 5,
@@ -137,7 +137,7 @@ class CmsTableSeeder extends Seeder
                 'slug' => 'our-team',
                 'description' => 'Our Team is a group of individuals working together to achieve shared goals, combining their unique skills and expertise for collective success',
                 'attachment_id' => 47,
-                'link' => url('/') . '/pages/content/our-team',
+                'link' => env('APP_URL') . '/pages/content/our-team',
                 'text_color' => '#000000',
                 'bg_color' => '#f9f9f9',
                 'order' => 6,
@@ -150,7 +150,7 @@ class CmsTableSeeder extends Seeder
                 We value your feedback and are dedicated to providing the best possible experience.
                 Have questions or need assistance? Contact our support team for help.',
                 'attachment_id' => 48,
-                'link' => url('/') . '/pages/content/contact-us',
+                'link' => env('APP_URL') . '/pages/content/contact-us',
                 'text_color' => '#4f46e5',
                 'bg_color' => '#F9F5F6',
                 'order' => 7,
