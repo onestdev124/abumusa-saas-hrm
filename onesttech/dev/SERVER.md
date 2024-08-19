@@ -10,7 +10,7 @@ ssh root@your_server_ip
 Once you log in as root, you’ll be able to add the new user account. In the future, we’ll log in with this new account instead of root.
 
 ```bash
-sudo adduser taqnahhr
+sudo adduser taqanah
 ```
 You will be asked a few questions, starting with the account password.
 
@@ -18,7 +18,7 @@ You will be asked a few questions, starting with the account password.
 ## Step 3 — Granting Administrative Privileges
 As root, run this command to add your new user to the sudo group (substitute the highlighted sammy username with your new user):
 ```bash
-sudo usermod -aG sudo taqnahhr
+sudo usermod -aG sudo taqanah
 ```
 
 ## Step 4 — Setting Up a Firewall
@@ -59,12 +59,12 @@ OpenSSH (v6)               ALLOW       Anywhere (v6)
 Now that you have a regular user for daily use, you will need to make sure that you can SSH into the account directly.
 If the root Account Uses Password Authentication
 ```bash
-ssh taqnahhr@your_server_ip
+ssh taqanah@your_server_ip
 ```
 
 If the root Account Uses SSH Key Authentication
 ```bash
-rsync --archive --chown=taqnahhr:taqnahhr ~/.ssh /home/taqnahhr
+rsync --archive --chown=taqanah:taqanah ~/.ssh /home/taqanah
 ```
 
 ## Step 1: Install PHP 8.1 and Necessary Extensions

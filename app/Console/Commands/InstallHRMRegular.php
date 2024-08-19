@@ -55,7 +55,7 @@ class InstallHRMRegular extends Command
         $this->info("Total time: {$elapsedTime} seconds");
 
         $this->comment("Login Credentials:");
-        $this->comment("Email: admin@taqnahhr.com");
+        $this->comment("Email: admin@taqanah.com");
         $this->comment("Password: 12345678");
 
         return Command::SUCCESS;

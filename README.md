@@ -1,8 +1,8 @@
 # ONEST HRM
 
 ## TABLE OF CONTENTS
-- [Server Setup](taqnahhr/dev/SERVER.md)
-- [For sub Domain](taqnahhr/dev/cloudflare.conf.md)
+- [Server Setup](taqanah/dev/SERVER.md)
+- [For sub Domain](taqanah/dev/cloudflare.conf.md)
 
 # For Live Tracking
 
@@ -197,7 +197,7 @@ Replace `main_hrm` with the desired name for your database.
 Now, let's create a MySQL user. Replace `hrm_user` and `your_password` with your preferred username and password:
 
 ```sql
-CREATE USER 'hrm_user'@'localhost' IDENTIFIED BY 'T@keAbreaKFr0m!taqnahhr';
+CREATE USER 'hrm_user'@'localhost' IDENTIFIED BY 'T@keAbreaKFr0m!taqanah';
 ```
 
 ## Step 4: Grant Privileges

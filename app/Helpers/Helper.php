@@ -1556,7 +1556,7 @@ function dummyEmployeeList()
             "designation_id" => 33,
             "shift_id" => 4,
             "is_hr" => 1,
-            "email" => "hr@taqnahhr.com",
+            "email" => "hr@taqanah.com",
         ],
         [
             "name" => "Staff",
@@ -1568,7 +1568,7 @@ function dummyEmployeeList()
             "designation_id" => 44,
             "shift_id" => 4,
             "is_hr" => 0,
-            "email" => "staff@taqnahhr.com",
+            "email" => "staff@taqanah.com",
         ],
     ];
 }
@@ -1586,7 +1586,7 @@ function dummyStaffListExtended()
             "designation_id" => 44,
             "shift_id" => 4,
             "is_hr" => 0,
-            "email" => "staff" . ($i + 1) . "@taqnahhr.com",
+            "email" => "staff" . ($i + 1) . "@taqanah.com",
         ];
     }
     return $listExtended;

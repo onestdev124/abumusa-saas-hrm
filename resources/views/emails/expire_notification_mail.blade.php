@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <title>{{ @base_settings('company_name') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta content="Taqnah HR Multipurpose Admin &amp; Dashboard Template" name="description" />
-    <meta content="Taqnah HR" name="author" />
+    <meta content="Taqanah HR Multipurpose Admin &amp; Dashboard Template" name="description" />
+    <meta content="Taqanah HR" name="author" />
     <!-- fontawesome -->
     <link rel="stylesheet" href="{{ asset('backend/') }}/css/all.min.css">
     <!-- Custom CSS  start -->

@@ -1595,12 +1595,12 @@ trait PermissionTrait
             $companyId = $company->id;
             $slug = ($companyId == 1) ? 'superadmin' : 'admin';
 
-            $userEmail = ($count != 0) ? "admin" . $count . "@taqnahhr.com" : "admin@taqnahhr.com";
+            $userEmail = ($count != 0) ? "admin" . $count . "@taqanah.com" : "admin@taqanah.com";
 
             // Create user for the first role
             $list1 = [
                 'name' => "Super Admin",
-                'email' => time() . '@taqnahhr.com',
+                'email' => time() . '@taqanah.com',
                 'is_admin' => 1,
                 'is_hr' => 0,
                 'role_id' => 1,
@@ -1639,7 +1639,7 @@ trait PermissionTrait
                 foreach ($roles as $key => $role) {
                     $list = [
                         'name' => $role->name,
-                        'email' => $role->name . '@taqnahhr.com',
+                        'email' => $role->name . '@taqanah.com',
                         'is_admin' => 1,
                         'is_hr' => 0,
                         'role_id' => $role->id,

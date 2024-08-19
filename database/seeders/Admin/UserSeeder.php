@@ -65,7 +65,7 @@ class UserSeeder extends Seeder
             return [
                 [
                     'name'                  => "Admin",
-                    'email'                 => 'admin@taqnahhr.com',
+                    'email'                 => 'admin@taqanah.com',
                     'is_admin'              => 1,
                     'is_hr'                 => 0,
                     'role_id'               => 1,
@@ -88,7 +88,7 @@ class UserSeeder extends Seeder
         return [
             [
                 'name'                  => $input['name'] ?? 'Admin',
-                'email'                 => $input['email'] ?? 'company' . time() . '@taqnahhr.com',
+                'email'                 => $input['email'] ?? 'company' . time() . '@taqanah.com',
                 'phone'                 => $input['phone'] ?? time(),
                 'is_admin'              => 1,
                 'is_hr'                 => 0,

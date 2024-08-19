@@ -26,8 +26,8 @@ class SettingsSeeder extends Seeder
 
     protected function settings()
     {
-        $companyName = 'Taqnah HR';
-        $email = 'info@taqnahhr.com';
+        $companyName = 'Taqanah HR';
+        $email = 'info@taqanah.com';
         $phone = '+62 (0) 000 0000 00';
         $address = 'House #148, Road #13/B, Block-E, Banani, Dhaka, Bangladesh';
 
@@ -127,8 +127,8 @@ class SettingsSeeder extends Seeder
             s0.parentNode.insertBefore(s1,s0);
             })();
             </script>';
-            $settings['meta_title']                    = 'Taqnah HR';
-            $settings['meta_description']              = 'Taqnah HR revolutionizes human resource management, offering a comprehensive solution for businesses. Streamline your HR processes, from recruitment to employee management, with advanced features and intuitive tools. Optimize workforce efficiency, enhance employee engagement, and stay compliant effortlessly. Explore the power of Taqnah HR for a seamless and strategic approach to HR.';
+            $settings['meta_title']                    = 'Taqanah HR';
+            $settings['meta_description']              = 'Taqanah HR revolutionizes human resource management, offering a comprehensive solution for businesses. Streamline your HR processes, from recruitment to employee management, with advanced features and intuitive tools. Optimize workforce efficiency, enhance employee engagement, and stay compliant effortlessly. Explore the power of Taqanah HR for a seamless and strategic approach to HR.';
             $settings['meta_keywords']                 = 'HR management software, Human resource solution, Employee management tool, Workforce optimization, Employee engagement platform, Compliance management, HR software solution, Talent management system.';
             $settings['meta_image']                    = '';
             $settings['is_demo_checkout']              = 1;
