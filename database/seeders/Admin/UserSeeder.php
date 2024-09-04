@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
     {
         try {
             foreach($this->userData() ?? [] as $key => $user) {
-                User::updateOrCreate([
+                $newUser                 = User::firstOrCreate([
                     'email'              => $user['email'],
                 ], [
                     'name'               => $user['name'],
@@ -47,10 +47,16 @@ class UserSeeder extends Seeder
 
                 if (Schema::hasTable('user_shift_assigns') && @$user['shift_id']) {
                     UserShiftAssign::create([
-                        'user_id' => $key + 1,
-                        'shift_id' => @$user['shift_id'],
+                        'user_id'   => $newUser->id,
+                        'shift_id'  => @$user['shift_id'],
                     ]);
                 }
+            }
+
+            $input = session()->get('input');
+            if ($input) {
+                $input['user_id'] = 1;
+                session()->put('input', $input);
             }
         } catch (\Throwable $th) {
             Log::error($th);
@@ -60,45 +66,22 @@ class UserSeeder extends Seeder
     protected function userData()
     {
         $input = session()->get('input');
-
-        if ($input == '') {
-            return [
-                [
-                    'name'                  => "Admin",
-                    'email'                 => 'admin@taqanah.com',
-                    'is_admin'              => 1,
-                    'is_hr'                 => 0,
-                    'role_id'               => 1,
-                    'company_id'            => 1,
-                    'country_id'            => 223,
-                    'shift_id'              => null,
-                    'department_id'         => null,
-                    'designation_id'        => null,
-                    'phone'                 => '0XXXXXXXXXXX',
-                    'permissions'           => json_encode([]),
-                ]
-            ];
-        }
-
-        if ($input) {
-            $input['user_id'] = 1;
-            session()->put('input', $input);
-        }
-
+        
         return [
             [
-                'name'                  => $input['name'] ?? 'Admin',
-                'email'                 => $input['email'] ?? 'company' . time() . '@taqanah.com',
-                'phone'                 => $input['phone'] ?? time(),
-                'is_admin'              => 1,
-                'is_hr'                 => 0,
-                'role_id'               => 1,
-                'company_id'            => 1,
-                'country_id'            => 223,
-                'shift_id'              => 1,
-                'department_id'         => 1,
-                'designation_id'        => 1,
-                'permissions'           => json_encode($this->adminPermissions()),
+                'name'           => $input['name'] ?? 'Mr Super Admin',
+                'email'          => $input['email'] ?? 'admin@onesttech.com',
+                'phone'          => $input['phone'] ?? '0XXXXXXXXXXX',
+                'is_admin'       => 1,
+                'is_hr'          => 0,
+                'role_id'        => 1,
+                'company_id'     => @$input['company_id'] ?? 1,
+                'branch_id'      => @$input['branch_id'] ?? 1,
+                'country_id'     => 223,
+                'shift_id'       => 1,
+                'department_id'  => 1,
+                'designation_id' => 1,
+                'permissions'    => json_encode($this->adminPermissions()),
             ]
         ];
     }

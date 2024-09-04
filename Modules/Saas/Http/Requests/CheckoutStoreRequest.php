@@ -36,8 +36,17 @@ class CheckoutStoreRequest extends FormRequest
             'expiry_date'           => 'required|date',
             'name'                  => 'required|max:255',
             'company_name'          => 'required|max:255|unique:companies,company_name',
-            'phone'                 => ['required', 'max:255', 'unique:companies,phone', 'regex:/^(?:\+|\d{1,4})[ -]?(?:\(\d{1,}\)[ -]?)?\d+(?:[ -]?\d+)*$/'],
-            'email'                 => 'required|email|max:255|unique:companies,email',
+            'phone'                 => [
+                'required', 'max:255',
+                Rule::unique('companies', 'phone'),
+                Rule::unique('users', 'phone'),
+                'regex:/^(?:\+|\d{1,4})[ -]?(?:\(\d{1,}\)[ -]?)?\d+(?:[ -]?\d+)*$/',
+            ],
+            'email'                 => [
+                'required', 'email', 'max:255',
+                Rule::unique('companies', 'email'),
+                Rule::unique('users', 'email'),
+            ],
             'trade_licence_number'  => 'required|max:255|unique:companies,trade_licence_number',
             'subdomain'             => [
                                         'required',

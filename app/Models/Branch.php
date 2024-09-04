@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Role\Role;
 use App\Models\coreApp\BaseModel;
 use App\Models\Hrm\Attendance\Weekend;
+use App\Models\Hrm\Department\Department;
+use App\Models\Hrm\Designation\Designation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\coreApp\Traits\Relationship\StatusRelationTrait;
@@ -60,5 +63,25 @@ class Branch extends BaseModel
                 // }
             });
         }
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'branch_id');
+    }
+
+    public function departments()
+    {
+        return $this->hasMany(Department::class, 'branch_id');
+    }
+
+    public function designations()
+    {
+        return $this->hasMany(Designation::class, 'branch_id');
+    }
+
+    public function roles()
+    {
+        return $this->hasMany(Role::class, 'branch_id');
     }
 }

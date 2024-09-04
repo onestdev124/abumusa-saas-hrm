@@ -8,7 +8,6 @@ use App\Models\Role\Role;
 use Illuminate\Support\Str;
 use App\Models\Notification;
 use App\Models\Subscription;
-use Illuminate\Http\Request;
 use App\Models\Frontend\Menu;
 use App\Models\Company\Company;
 use App\Models\Settings\ApiSetup;
@@ -26,15 +25,15 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
-use App\Models\coreApp\Setting\Setting;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Hrm\Attendance\Attendance;
-use Modules\Saas\Entities\SaasSubscription;
 use App\Models\Hrm\Attendance\EmployeeBreak;
 use App\Notifications\HrmSystemNotification;
 use App\Models\coreApp\Setting\CompanyConfig;
+use App\Models\coreApp\Setting\Setting;
 use App\Repositories\Hrm\Attendance\AttendanceRepository;
+use Modules\Saas\Entities\SaasSubscription;
 
 /*
  * Set active class
@@ -781,7 +780,7 @@ if (!function_exists('settings')) {
     function settings($key)
     {
         try {
-            if (!auth()->id() && config('app.single_db') && !in_array(currentUrl(), config('tenancy.central_domains'))) {
+            if (!auth()->id() && config('app.single_db') && !in_array(url('/'), config('tenancy.central_domains'))) {
                 return CompanyConfig::where('key', $key)->where('company_id', getCurrentDomainCompany()->id)->first()?->value;
             } else {
                 return CompanyConfig::where('key', $key)->where('company_id', 1)->first()?->value;
@@ -886,7 +885,7 @@ if (!function_exists('showTimeFromTimeStamp')) {
 }
 function base_settings($data, $default = null)
 {
-    if ((!auth()->id() || auth()->id()) && (config('app.single_db') && !in_array(currentUrl(), config('tenancy.central_domains')))) {
+    if ((!auth()->id() || auth()->id()) && (config('app.single_db') && !in_array(url('/'), config('tenancy.central_domains')))) {
         return Setting::where('name', $data)->where('company_id', getCurrentDomainCompany()->id)->first()?->value;
     } else {
         return Setting::where('name', $data)->where('company_id', 1)->first()?->value;
@@ -1557,7 +1556,7 @@ function dummyEmployeeList()
             "designation_id" => 33,
             "shift_id" => 4,
             "is_hr" => 1,
-            "email" => "hr@taqanah.com",
+            "email" => "hr@onesttech.com",
         ],
         [
             "name" => "Staff",
@@ -1569,7 +1568,7 @@ function dummyEmployeeList()
             "designation_id" => 44,
             "shift_id" => 4,
             "is_hr" => 0,
-            "email" => "staff@taqanah.com",
+            "email" => "staff@onesttech.com",
         ],
     ];
 }
@@ -1587,7 +1586,7 @@ function dummyStaffListExtended()
             "designation_id" => 44,
             "shift_id" => 4,
             "is_hr" => 0,
-            "email" => "staff" . ($i + 1) . "@taqanah.com",
+            "email" => "staff" . ($i + 1) . "@onesttech.com",
         ];
     }
     return $listExtended;
@@ -2258,7 +2257,7 @@ if (!function_exists('isMainCompany')) {
     function isMainCompany()
     {
         if (
-            in_array(currentUrl(), config('tenancy.central_domains'))
+            in_array(url('/'), config('tenancy.central_domains'))
             && isModuleActive('Saas')
             && mainCompany()->is_main_company == 'yes'
             && config('app.mood') === 'Saas'
@@ -2636,13 +2635,13 @@ if (!function_exists('isExpiredRunningSubscription')) {
 }
 
 
-if (!function_exists('currentUrl')) {
-    function currentUrl()
+if (!function_exists('currentCompanyCurrentBranch')) {
+    function currentCompanyCurrentBranch()
     {
-        return url('/');
-        $fullUrl = request()->fullUrl();
-        $domainWithScheme = parse_url($fullUrl, PHP_URL_SCHEME) . '://' . parse_url($fullUrl, PHP_URL_HOST);
-        
-        return $domainWithScheme;
+        // Return an array with the current branch ID and company ID
+        return [
+            'branch_id' => userBranch(),
+            'company_id' => userCompanies(),
+        ];
     }
 }

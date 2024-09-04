@@ -1,5 +1,7 @@
 @extends('backend.layouts.app')
+
 @section('title', @$data['title'])
+
 @section('content')
     {!! breadcrumb([
         'title' => @$data['title'],

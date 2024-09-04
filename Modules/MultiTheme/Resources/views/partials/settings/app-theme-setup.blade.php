@@ -14,36 +14,62 @@
                 <div class="col-lg-3 col-xl-3">
                     <div class="div">
                         <label for="app_theme_1">
-                            <input type="radio" @if(base_settings('default_theme')== 'app_theme_1') checked @endif  value="app_theme_1" name="app_theme" id="app_theme_1">
+                            <input type="radio" @if(base_settings('default_theme') == 'app_theme_1') checked @endif  value="app_theme_1" name="app_theme" id="app_theme_1">
                             <img id="get-screen" class="profile-user-img img-fluid " style="max-height: 200px"
-                                {{-- src="{{ asset(base_settings('app_theme_1')) }}" --}}
-                                src="{{ uploaded_asset(base_settings('app_theme_1')) }}"
-                                alt="User profile picture">
+                                @if (config('app.mood') == 'Saas')
+                                    src="{{ uploaded_asset(base_settings('app_theme_1')) }}"
+                                @else
+                                    src="{{ asset(base_settings('app_theme_1')) }}"
+                                @endif
+                                alt="app_theme_1"
+                            >
                         </label>
                     </div>
                 </div>
                 <div class="col-lg-3 col-xl-3">
                     <div class="div">
                         <label for="app_theme_2">
-                            <input type="radio" @if(base_settings('default_theme')== 'app_theme_2') checked @endif  value="app_theme_2" name="app_theme" id="app_theme_2">
+                            <input type="radio" @if(base_settings('default_theme') == 'app_theme_2') checked @endif  value="app_theme_2" name="app_theme" id="app_theme_2">
                             <img id="get-screen" class="profile-user-img img-fluid " style="max-height: 200px"
-                                {{-- src="{{ asset(base_settings('app_theme_2')) }}" --}}
-                                src="{{ uploaded_asset(base_settings('app_theme_2')) }}"
-                                alt="User profile picture">
+                                @if (config('app.mood') == 'Saas')
+                                    src="{{ uploaded_asset(base_settings('app_theme_2')) }}"
+                                @else
+                                    src="{{ asset(base_settings('app_theme_2')) }}"
+                                @endif
+                                alt="app_theme_2"
+                            >
                         </label>
                     </div>
                 </div>
                 <div class="col-lg-3 col-xl-3">
                     <div class="div">
                         <label for="app_theme_3">
-                            <input type="radio" @if(base_settings('default_theme')== 'app_theme_3') checked @endif  value="app_theme_3" name="app_theme" id="app_theme_3">
+                            <input type="radio" @if(base_settings('default_theme') == 'app_theme_3') checked @endif  value="app_theme_3" name="app_theme" id="app_theme_3">
                             <img id="get-screen" class="profile-user-img img-fluid " style="max-height: 200px"
-                                {{-- src="{{ asset(base_settings('app_theme_3')) }}" --}}
-                                src="{{ uploaded_asset(base_settings('app_theme_3')) }}"
-                                alt="User profile picture">
+                                @if (config('app.mood') == 'Saas')
+                                    src="{{ uploaded_asset(base_settings('app_theme_3')) }}"
+                                @else
+                                    src="{{ asset(base_settings('app_theme_3')) }}"
+                                @endif
+                                alt="app_theme_3"
+                            >
                         </label>
                     </div>
-
+                </div>
+                <div class="col-lg-3 col-xl-3">
+                    <div class="div">
+                        <label for="app_theme_4">
+                            <input type="radio" @if(base_settings('default_theme') == 'app_theme_4') checked @endif  value="app_theme_4" name="app_theme" id="app_theme_4">
+                            <img id="get-screen" class="profile-user-img img-fluid " style="max-height: 200px"
+                                @if (config('app.mood') == 'Saas')
+                                    src="{{ uploaded_asset(base_settings('app_theme_4')) }}"
+                                @else
+                                    src="{{ asset(base_settings('app_theme_4')) }}"
+                                @endif
+                                alt="app_theme_4"
+                            >
+                        </label>
+                    </div>
                 </div>
             </div>
             @if (hasPermission('general_settings_update'))

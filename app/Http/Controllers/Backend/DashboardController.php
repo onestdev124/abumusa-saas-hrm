@@ -171,10 +171,10 @@ class DashboardController extends Controller
         }
 
         try {
-            if (auth()->user()->role_id == 1) {
-                $data = $this->superadminDashboard();
-                return view('backend.__superadmin_dashboard', compact('data'));
-            } else {
+            // if (auth()->user()->role_id == 1) {
+            //     $data = $this->superadminDashboard();
+            //     return view('backend.__superadmin_dashboard', compact('data'));
+            // } else {
                 if (!config('settings.app')['site_under_maintenance']) {
 
                     $data = $this->companyDashboard();
@@ -182,7 +182,7 @@ class DashboardController extends Controller
                 } else {
                     return redirect('/');
                 }
-            }
+            // }
         } catch (\Exception $e) {
             Toastr::error(_trans('response.Something went wrong!'), 'Error');
             return redirect()->back();

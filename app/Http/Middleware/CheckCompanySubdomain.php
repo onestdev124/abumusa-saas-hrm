@@ -18,16 +18,33 @@ class CheckCompanySubdomain
         // Check the current domain company and tenancy settings
         $currentDomainCompany = getCurrentDomainCompany();
         $centralDomains = config('tenancy.central_domains');
-        $currentUrl = currentUrl();
+        $currentUrl = url('/');
 
-        if (!in_array(currentUrl(), config('tenancy.central_domains'))){
-            if ($currentDomainCompany->is_main_company == 'no' && ($currentDomainCompany->status_id == 4 || isExpiredRunningSubscription())) {
-                abort(429);
+        if (!in_array(url('/'), config('tenancy.central_domains'))){
+            if ($currentDomainCompany &&  @$currentDomainCompany->is_main_company == 'no' && (@$currentDomainCompany->status_id == 4 || isExpiredRunningSubscription())) {
+
+                // Check company is inactive
+                if (@$currentDomainCompany->status_id == 4) {
+                    abort(429);
+                }
+
+                // Check subscription was expire
+                if (isExpiredRunningSubscription()) {
+                    if (
+                        !request()->routeIs('single-company.upgrade-plan.index') &&
+                        !request()->routeIs('single-company.upgrade-plan.modal') &&
+                        !request()->routeIs('single-company.upgrade-plan.store') &&
+                        !request()->routeIs('single-company.subscriptions.invoice')
+                    ) {
+                        return redirect()->route('single-company.upgrade-plan.index');
+                    }
+                }
            }
+
            if (!$currentDomainCompany && !in_array($currentUrl, $centralDomains) && config('app.mood') === 'Saas' && isModuleActive('Saas')) {
-            // If conditions are not met, abort with a 404 error
-            abort(404);
-        }
+                // If conditions are not met, abort with a 404 error
+                abort(404);
+            }
         }
 
     

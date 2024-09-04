@@ -19,6 +19,7 @@
             'holidaySetup.show',
             'dutySchedule.create',
             'dutySchedule.edit',
+            'company.settings.brandings',
         ]) }}">
     <i class="las la-tools"></i>
     <span class="on-half-expanded">
@@ -89,6 +90,14 @@
                 <span>{{ _trans('common.Activation') }}</span>
             </a>
         </li>
+        @endif
+
+        @if (hasPermission('branding_read'))
+            <li class="nav-item {{ menu_active_by_route('company.settings.brandings') }}">
+                <a href="{{ route('company.settings.brandings') }}" class="">
+                    <span>{{ _trans('common.Branding') }}</span>
+                </a>
+            </li>
         @endif
     @endif
 </ul>

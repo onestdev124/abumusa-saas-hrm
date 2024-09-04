@@ -19,7 +19,7 @@ return [
     'central_domains' => [
         env('APP_DOMAIN'),
         env('APP_URL'),
-        'http://taqanah-hr.com'
+        'http://' . env('APP_DOMAIN'),
     ],
 
     /**

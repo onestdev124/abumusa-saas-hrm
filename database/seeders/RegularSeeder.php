@@ -38,8 +38,6 @@ class RegularSeeder extends Seeder
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
-        // $this->keyGenerate();
-        // ---------------------------------- global --------------------------------
         $this->call(CountrySeeder::class);
         $this->call(StatusSeeder::class);
         $this->call(CompanySeeder::class);
@@ -48,7 +46,6 @@ class RegularSeeder extends Seeder
         $this->call(RoleSeeder::class);
         $this->call(PermissionSeeder::class);
 
-        // ------------------------------- institute based --------------------------------
         if (env('APP_INSTITUTION') === "hospital") {
             $this->call(HospitalDatabaseSeeder::class);
         } else {
@@ -66,5 +63,6 @@ class RegularSeeder extends Seeder
         $this->call(WeekendSetupSeeder::class);
         $this->call(AllContentsTableSeeder::class);
         $this->call(AppScreenSeeder::class);
+        $this->call(BrandingSeeder::class);
     }
 }

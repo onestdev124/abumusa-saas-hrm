@@ -378,6 +378,11 @@ class PermissionSeeder extends Seeder
             // 2024-01-10 START
             'subscription' => ['read' => 'subscription_read', 'upgrade' => 'subscription_upgrade', 'invoice' => 'subscription_invoice'],
             // 2024-01-10 END
+
+            'branding' => [
+                'read' => 'branding_read',
+                'update' => 'branding_update',
+            ],
         ];
     }
 }

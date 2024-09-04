@@ -17,7 +17,7 @@ class CompanyScope implements Scope
             $builder->where($model->getTable().'.company_id', '=', auth()->user()->company_id);   
         } elseif(
             config('app.single_db') 
-            && !in_array(currentUrl(), config('tenancy.central_domains')) 
+            && !in_array(url('/'), config('tenancy.central_domains')) 
             && config('app.mood') === 'Saas' && isModuleActive('Saas') 
             && getCurrentDomainCompany()
         ) {

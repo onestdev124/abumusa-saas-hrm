@@ -1,15 +1,4 @@
 {
-    "Checkout": "Checkout",
-    "Complete order": "Complete order",
-    "Start Date": "Start Date",
-    "End Date": "End Date",
-    "Total": "Total",
     "Home": "Home",
-    "Contact": "Contact",
-    "Pricing": "Pricing",
-    "Most Popular": "Most Popular",
-    "Phone already Exists": "Phone already Exists",
-    "Not Found": "Not Found",
-    "Email already Exists": "Email already Exists",
-    "Subdomain already Exists": "Subdomain already Exists"
+    "Pricing": "Pricing"
 }

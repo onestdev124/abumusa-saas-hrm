@@ -87,7 +87,7 @@ class DutyScheduleRepository
     public function update($request)
     {
         try {
-            $dutySchedule = $this->dutySchedule->where('id', $request->duty_schedule_id)->first();
+            $dutySchedule = $this->dutySchedule->where('id', $request->duty_schedule_id)->where('company_id', getCurrentCompany())->first();
             $dutySchedule->shift_id = $request->shift_id;
             $dutySchedule->consider_time = $request->consider_time;
             $dutySchedule->start_time = $request->start_time;

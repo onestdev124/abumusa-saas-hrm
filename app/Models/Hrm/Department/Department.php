@@ -16,7 +16,7 @@ use App\Models\coreApp\Traits\Relationship\StatusRelationTrait;
 
 class Department extends BaseModel
 {
-    use HasFactory, StatusRelationTrait, LogsActivity, SoftDeletes,CompanyTrait,BranchTrait;
+    use HasFactory, StatusRelationTrait, LogsActivity, SoftDeletes, CompanyTrait, BranchTrait;
 
     protected $fillable = [
         'company_id', 'id', 'title', 'status_id'
@@ -35,8 +35,6 @@ class Department extends BaseModel
     {
         return $this->hasMany(User::class, 'department_id', 'id')->where('status_id', 1);
     }
-
-
 
     public function getActivitylogOptions(): LogOptions
     {

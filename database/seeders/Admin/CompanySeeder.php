@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\Admin;
 
+use App\Models\Branch;
 use App\Models\Company\Company;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,7 @@ class CompanySeeder extends Seeder
     public function run()
     {
         $input = session()->get('input');
-        
+
         if ($input) {
             try {
                 $company = Company::create([
@@ -24,8 +25,8 @@ class CompanySeeder extends Seeder
                     'country_id'           => $input['country_id'] ?? 1,
                     'name'                 => $input['name'] ?? 'Mr Owner',
                     'company_name'         => $input['company_name'] ?? 'Company',
-                    'email'                => $input['email'] ?? 'company@demo.com',
-                    'phone'                => $input['phone'] ?? '+8801710077625',
+                    'email'                => $input['email'] ?? 'hello@gmail.test',
+                    'phone'                => $input['phone'] ?? '0XXXXXXXXXX',
                     'total_employee'       => $input['total_employee'] ?? 10,
                     'trade_licence_number' => $input['trade_licence_number'] ?? '1234567890',
                     'business_type'        => $input['business_type'] ?? 'Unknown',
@@ -33,15 +34,16 @@ class CompanySeeder extends Seeder
                     'is_main_company'      => 'no',
                     'is_subscription'      => @$input['is_subscription'] ?? 0,
                 ]);
+
                 $input['company_id'] = $company->id;
                 session()->put('input', $input);
             } catch (\Throwable $th) {}
         } else {
             try {
-                Company::firstOrCreate([
+                $company = Company::firstOrCreate([
                     'name'              => 'Mr Owner',
                     'company_name'      => 'Main Company',
-                    'email'             => 'company@taqanah.com',
+                    'email'             => 'hello@onesttech.com',
                 ], [
                     'phone'             => '0XXXXXXXXXX',
                     'total_employee'    => 100,
@@ -49,6 +51,7 @@ class CompanySeeder extends Seeder
                     'is_main_company'   => 'yes',
                     'country_id'        => 223,
                 ]);
+
             } catch (\Throwable $th) {
                 Log::error('Company Seed Error');
             }

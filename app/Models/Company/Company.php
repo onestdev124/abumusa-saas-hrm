@@ -4,26 +4,26 @@ namespace App\Models\Company;
 
 use App\Models\User;
 use App\Models\Branch;
+use App\Models\Role\Role;
 use App\Models\coreApp\BaseModel;
-use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\LogOptions;
 use App\Models\Hrm\Country\Country;
 use App\Models\Hrm\Attendance\Weekend;
 use App\Models\coreApp\Setting\Setting;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Hrm\Department\Department;
+use App\Models\Hrm\Designation\Designation;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\coreApp\Setting\CompanyConfig;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\coreApp\Traits\Relationship\StatusRelationTrait;
-use Modules\Saas\Entities\SaasSubscription;
 
 class Company extends BaseModel
 {
-    use HasFactory, StatusRelationTrait, LogsActivity;
+    use HasFactory, StatusRelationTrait, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'id', 'name', 'company_name', 'email', 'phone', 'total_employee', 'business_type', 'trade_licence_number', 'subdomain', 'status_id', 'trade_licence_id', 'is_main_company', 'country_id', 'is_subscription'
@@ -58,11 +58,20 @@ class Company extends BaseModel
         return $this->hasMany(Setting::class, 'company_id', 'id');
     }
 
-    public function departments(): HasMany
+    public function users(): HasMany
     {
-        return $this->hasMany(Department::class, 'company_id', 'id');
+        return $this->hasMany(User::class, 'company_id', 'id');
     }
 
+    public function roles()
+    {
+        return $this->hasMany(Role::class, 'company_id', "id");
+    }
+
+    public function branches(): HasMany
+    {
+        return $this->hasMany(Branch::class, 'company_id', 'id');
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

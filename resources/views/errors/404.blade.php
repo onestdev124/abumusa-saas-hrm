@@ -15,7 +15,7 @@
             <h1 class="display-4">404</h1>
             <p class="lead">Page Not Found</p>
             <p>Sorry, the page you are looking for does not exist.</p>
-            <a href="{{ currentUrl() }}" class="btn btn-primary">Go Back to Home</a>
+            <a href="{{ url('/') }}" class="btn btn-primary">Go Back to Home</a>
         </div>
     </div>
 </div>

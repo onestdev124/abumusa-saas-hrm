@@ -22,7 +22,7 @@ class BaseModel extends Model
     // {
     //     parent::boot();
 
-    //     $tenant = (!in_array(currentUrl(), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas'));
+    //     $tenant = (!in_array(url('/'), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas'));
     //     $regular = config('app.mood') !== 'Saas' && !isModuleActive('Saas') ? true : false;
 
     //     if (!app()->runningInConsole() && ($tenant || $regular)) {
@@ -48,10 +48,14 @@ class BaseModel extends Model
 
     public function scopeAuthorizable($query)
     {
-        $query->when(Schema::hasColumn($this->getTable(), 'company_id'), function ($q) {
-            $q->where('company_id', auth()->user()->company_id);
-        })->when(Schema::hasColumn($this->getTable(), 'branch_id'), function ($q) {
-            $q->where('branch_id', auth()->user()->branch_id);
-        });
+        if (config('app.single_db')) {
+            $query->when(Schema::hasColumn($this->getTable(), 'company_id'), function ($q) {
+                $q->where('company_id', auth()->user()->company_id);
+            })->when(Schema::hasColumn($this->getTable(), 'branch_id'), function ($q) {
+                $q->where('branch_id', auth()->user()->branch_id);
+            });
+        }
+
+        return $query;
     }
 }

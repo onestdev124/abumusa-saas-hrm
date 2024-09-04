@@ -19,6 +19,7 @@ Route::group(['prefix' => 'admin/company-setup', 'middleware' => ['xss','admin']
     Route::middleware(['FeatureCheck:configurations'])->group(function () {
         Route::get('activation',[CompanyConfigController::class, 'activation'])->name('company.settings.activation')->middleware('PermissionCheck:company_setup_activation');
         Route::get('configuration',[CompanyConfigController::class, 'configuration'])->name('company.settings.configuration')->middleware('PermissionCheck:company_setup_configuration');
+        Route::match(['get','post'],'brandings',[CompanyConfigController::class, 'brandings'])->name('company.settings.brandings')->middleware('PermissionCheck:branding_update');
     });
 
 });

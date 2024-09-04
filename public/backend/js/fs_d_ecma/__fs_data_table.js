@@ -161,6 +161,7 @@ function currencyDatatable(...values) {
     _token: _token,
   };
   data["column"] = [
+    "id",
     "name",
     "code",
     "symbol",
@@ -231,6 +232,7 @@ function branchDatatable(...values) {
 }
 $(".branch_table").length > 0 ? branchDatatable() : "";
 //branch_table end
+
 //company_table start
 function companyDatatable(...values) {
   let data = [];
@@ -265,7 +267,47 @@ function companyDatatable(...values) {
   data["table_id"] = "company_table";
   table(data);
 }
+
 $(".company_table").length > 0 ? companyDatatable() : "";
+
+//start company trash list table
+function companyTrashListDatatable(...values) {
+  let data = [];
+  let url = tableUrl + "/admin/saas/companies/trash";
+  data["url"] = url;
+
+  var from_date = $("#start").val();
+  var to_date = $("#end_date").val();
+  var shortBy = $("#short_by").val();
+
+  data["value"] = {
+    from: from_date ? from_date : null,
+    to: to_date ? to_date : null,
+    short_by: shortBy ? shortBy : null,
+    limit: $("#entries").val(),
+    search: $('input[name="search"]').val(),
+    token: _token,
+  };
+  data["column"] = [
+    "id",
+    "name",
+    "phone",
+    "email",
+    "employee",
+    "trade_licence_number",
+    "subdomain",
+    "subscription",
+    "status",
+    "action"
+  ];
+
+  data["table_id"] = "company_table_trash_list";
+  table(data);
+}
+
+$(".company_table_trash_list").length > 0 ? companyTrashListDatatable() : "";
+//End company trash list table
+
 //leave_type_table start
 function leaveTypeDatatable(...values) {
   let data = [];

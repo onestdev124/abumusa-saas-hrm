@@ -2,26 +2,28 @@
 
 namespace App\Http\Controllers\coreApp\Setting;
 
+use App\Models\User;
+use App\Models\Upload;
+use Illuminate\Http\Request;
+use App\Models\Settings\Currency;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\Auth;
+use App\Models\coreApp\Status\Status;
+use App\Models\Permission\Permission;
+use Illuminate\Support\Facades\Cache;
+use App\Models\coreApp\Setting\Setting;
+use App\Models\Database\DatabaseBackup;
+use App\Repositories\CurrencyRepository;
 use App\Helpers\CoreApp\Traits\FileHandler;
 use App\Helpers\CoreApp\Traits\PermissionTrait;
-use App\Http\Controllers\Controller;
-use App\Models\coreApp\Setting\Setting;
-use App\Models\coreApp\Status\Status;
-use App\Models\Database\DatabaseBackup;
-use App\Models\Permission\Permission;
-use App\Models\Settings\Currency;
-use App\Models\User;
-use App\Repositories\Hrm\Leave\LeaveSettingRepository;
-use App\Repositories\CurrencyRepository;
-use App\Repositories\Settings\CompanyConfigRepository;
 use App\Repositories\Settings\SettingRepository;
-use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use App\Helpers\CoreApp\Traits\ApiReturnFormatTrait;
-use App\Models\Upload;
+use App\Repositories\Hrm\Leave\LeaveSettingRepository;
+use App\Repositories\Settings\CompanyConfigRepository;
 
 class SettingsController extends Controller
 {
@@ -63,6 +65,7 @@ class SettingsController extends Controller
             return redirect()->route('manage.settings.currency_list');
         }
     }
+
     public function delete_currency($id){
         if (config('app.style') === 'demo' || env('APP_STYLE') === "demo") {
             Toastr::warning('You are not allowed to perform the delete action in demo mode.', 'Warning');
@@ -74,6 +77,7 @@ class SettingsController extends Controller
         Toastr::success(_trans('settings.Currency Deleted successfully'), 'Success');
         return redirect()->route('manage.settings.currency_list');
     }
+
     public function save_currency(Request $request)
     {
         if (config('app.style') === 'demo' || env('APP_STYLE') === "demo") {
@@ -82,38 +86,46 @@ class SettingsController extends Controller
         }
 
         $data  = new Currency();
-        $data->name = $request->name;
-        $data->code = $request->code;
-        $data->symbol = $request->symbol;
+
+        $data->name       = $request->name;
+        $data->code       = $request->code;
+        $data->symbol     = $request->symbol;
+        $data->company_id = Auth::user()->company_id;
         $data->save();
+
         Toastr::success(_trans('settings.Currency Added successfully'), 'Success');
         return redirect()->route('manage.settings.currency_list');
     }
 
-    public function update_currency(Request $request){
-
+    public function update_currency(Request $request)
+    {
         if (config('app.style') === 'demo' || env('APP_STYLE') === "demo") {
             Toastr::warning('You are not allowed to perform the delete action in demo mode.', 'Warning');
             return redirect()->back();
         }
 
-        $data = Currency::find($request->id);
-            $data->name = $request->name;
-            $data->code = $request->code;
-            $data->symbol = $request->symbol;
-            $data->save();
+            $currency = Currency::where("id", $request->id)->where('company_id', Auth::user()->company_id)->first();
+            if ($currency) {
+                $currency->name = $request->name;
+                $currency->code = $request->code;
+                $currency->symbol = $request->symbol;
+                $currency->save();
+            }
+
         Toastr::success(_trans('settings.Currency Updated successfully'), 'Success');
         return redirect()->route('manage.settings.currency_list');
     }
 
-    public function edit_currency($id){
-        $data['title'] = _trans('settings.Edit Currency');
-        $data['currency'] = Currency::find($id);
+    public function edit_currency($id)
+    {
+        $data['title']    = _trans('settings.Edit Currency');
+        $data['currency'] = Currency::where("id", $id)->where("company_id", Auth::user()->company_id)->first();
+
         return view('backend.settings.currency.edit', compact('data'));
     }
 
-
-    public function currency_list(Request $request){
+    public function currency_list(Request $request)
+    {
         try {
             if ($request->ajax()) {
                 return $this->currencyRepo->table($request);
@@ -127,18 +139,6 @@ class SettingsController extends Controller
             Toastr::error(_trans('response.Something went wrong 11!'), 'Error');
             return back();
         }
-
-//        $searchQuery = $request->input('search');
-//
-//        $data['title'] = _trans('settings.Currency List');
-//        $currencies = Currency::query()
-//            ->when($searchQuery, function ($query) use ($searchQuery) {
-//                $query->where('name', 'LIKE', "%$searchQuery%");
-//
-//            })
-//            ->paginate(20);
-//
-//        return view('backend.settings.currency.index', compact('data','currencies'));
     }
 
     public function add_currency()
@@ -325,20 +325,20 @@ class SettingsController extends Controller
         }
 
         $request->validate([
-            'company_description' => 'nullable|max:255',
-            'company_name' => 'nullable|max:150',
-            'android_url' => 'nullable|max:255',
-            'android_icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'ios_url' => 'nullable|max:255',
-            'ios_icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'company_icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'company_description'   => 'nullable|max:255',
+            'company_name'          => 'nullable|max:150',
+            'android_url'           => 'nullable|max:255',
+            'android_icon'          => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'ios_url'               => 'nullable|max:255',
+            'ios_icon'              => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'company_icon'          => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'company_logo_frontend' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'company_logo_backend' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'backend_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'meta_title' => 'nullable|max:255',
-            'meta_description' => 'nullable|max:500',
-            'meta_keywords' => 'nullable|max:500',
-            'meta_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'company_logo_backend'  => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'backend_image'         => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'meta_title'            => 'nullable|max:255',
+            'meta_description'      => 'nullable|max:500',
+            'meta_keywords'         => 'nullable|max:500',
+            'meta_image'            => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
         
         $companyDir = 'assets/tenant/' . subdomainName(auth()->user()->company->subdomain);
@@ -346,61 +346,70 @@ class SettingsController extends Controller
         try {
             $settings = request()->except('_token');
             $i = 0;
-            foreach ($settings as $key => $item) {
 
+            foreach ($settings as $key => $item) {
                 if (config('app.single_db') && !isMainCompany() && request()->file($key)) {
-                    $check = Upload::find(base_settings('company_logo_frontend'));
-                    $upload_path = $check->img_path;
-                    if (file_exists($upload_path)) {
-                        unlink($check->img_path);
-                        Upload::where('id', base_settings('company_logo_frontend'))->delete();
-                    } else {
-                        Upload::where('id', base_settings('company_logo_frontend'))->delete();
+                    $upload = Upload::find(base_settings($key));
+
+                    if ($upload &&file_exists($upload->img_path)) {
+                        unlink($upload->img_path);
+                        Upload::where('id', base_settings($key))->delete();
                     }
                 }
 
                 $new_setup = Setting::where('name', $key)->where('company_id', auth()->user()->company_id)->first();
                 if (!blank($new_setup)) {
-                    $new_setup = Setting::where('name', $key)->where('company_id', auth()->user()->company_id)
-                        ->update(['value' => $item]);
-
+                    $new_setup = Setting::where('name', $key)
+                    ->where('company_id', auth()->user()->company_id)
+                    ->update(['value' => $item]);
                 } else {
-                    $new_setup = new Setting;
-                    $new_setup->name = $key;
-                    $new_setup->value = $item;
+                    $new_setup             = new Setting;
+                    $new_setup->name       = $key;
+                    $new_setup->value      = $item;
                     $new_setup->company_id = auth()->user()->company_id;
                     $new_setup->save();
                 }
+
                 //upgrade base app settings
                 config()->set("settings.app.{$key}", $item);
-                //change language
+
+                //change company name
                 if ($key == 'company_name') {
-                    putEnvConfigration('APP_NAME', $item);
+                    // putEnvConfigration('APP_NAME', $item);
                 }
+
+                // Change language
                 if ($key == 'language') {
                     App::setLocale($item);
                     session()->put('locale', $item);
                 }
+
                 if (request()->file($key)) {
                     if (config('app.single_db') && !isMainCompany()) {
 
-                        $settings[$key] = $this->tenantUploadImage(request()->file($key), $companyDir .'/logo');                   
+                        $settings[$key] = $this->tenantUploadImage(request()->file($key), $companyDir .'/logo');
                     }else{
                         $settings[$key] = $this->uploadImage(request()->file($key), 'uploads/settings/logo');
                     }
+
                     Setting::where('name', $key)->where('company_id', auth()->user()->company_id)->update([
                         'value' => $settings[$key]->id,
                     ]);
                 }
+
                 $i++;
             }
+
             Toastr::success(_trans('settings.Settings updated successfully'), 'Success');
             return redirect('/admin/settings/?general_setting=true');
         } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+
             Toastr::error(_trans('response.Something went wrong!'), 'Error');
             return redirect()->back();
         }
     }
+
     public function permissionUpdate()
     {
         if (config('app.style') === 'demo' || env('APP_STYLE') === "demo") {

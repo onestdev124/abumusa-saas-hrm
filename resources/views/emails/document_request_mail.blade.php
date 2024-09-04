@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <title>{{ @base_settings('company_name') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta content="Taqanah Multipurpose Admin &amp; Dashboard Template" name="description" />
-    <meta content="Taqanah HR" name="author" />
+    <meta content="Onest Multipurpose Admin &amp; Dashboard Template" name="description" />
+    <meta content="Onesttech" name="author" />
     <!-- fontawesome -->
     <link rel="stylesheet" href="{{ asset('backend/') }}/css/all.min.css">
     <!-- Custom CSS  start -->
@@ -309,7 +309,7 @@
             <!-- Stat template footer  -->
             <div class="template-footer">
                 <p>{{ _trans('emailTemplate.Copyright') }} &copy; {{ date('Y') }} 
-					<a href="{{ currentUrl() }}">{{ @base_settings('company_name') }}</a>.
+					<a href="{{ url('/') }}">{{ @base_settings('company_name') }}</a>.
                     {{ _trans('emailTemplate.All rights reserved.') }}</p>
             </div>
             <!-- End template footer -->

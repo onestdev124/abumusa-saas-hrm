@@ -46,7 +46,7 @@ class MultiBranchController extends Controller
 
     public function dataTable(Request $request): object
     {
-        return $this->branchRepository->dataTable($request);
+        // return $this->branchRepository->dataTable($request);
     }
 
     public function show($id)
@@ -69,7 +69,6 @@ class MultiBranchController extends Controller
 
     public function update(BranchRequest $request, Branch $branch)
     {
-        // return $this->branchRepository->update($request,$branch);
         try {
             if (!$request->ajax()) {
                 Toastr::error(_trans('response.Please click on button!'), 'Error');
@@ -84,7 +83,6 @@ class MultiBranchController extends Controller
 
     public function destroy($id)
     {
-
         try {
             $this->branchRepository->destroy($id);
             return redirect()->route('branches.index');
@@ -96,7 +94,6 @@ class MultiBranchController extends Controller
 
     public function changeBranch(Request $request)
     {
-
         try {
             session(['session_branch_id' => $request->branch_id]);
             return response()->json([
@@ -130,7 +127,6 @@ class MultiBranchController extends Controller
 
     public function store(BranchRequestStore $request)
     {
-
         try {
             if (!$request->ajax()) {
                 Toastr::error(_trans('response.Please click on button!'), 'Error');

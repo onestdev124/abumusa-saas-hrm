@@ -35,14 +35,16 @@
                         </a>
                     </li>
                 @endif
+
                 @if (isMainCompany())
                     @include('saas::backend.sidebar.saas_sidebar')
                 @endif
+
                 @if (!isMainCompany() && isModuleActive('Saas') && config('app.mood') == 'Saas' && !env('APP_24hourworx'))
                     @include('saas::backend.sidebar.single_company_sidebar')
                 @endif
-                @if (!isMainCompany())
 
+                @if (!isMainCompany())
                     @if (hasFeature('add_ons') &&
                             hasPermission('addons_menu') &&
                             (isModuleActive('EmployeeDocuments') || isModuleActive('MultiBranch')))

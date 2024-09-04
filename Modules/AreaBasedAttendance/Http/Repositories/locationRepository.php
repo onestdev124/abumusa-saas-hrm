@@ -101,6 +101,7 @@ class locationRepository
             return $this->responseWithError($th->getMessage(), [], 400);
         }
     }
+
     function update($request, $id)
     {
         try {

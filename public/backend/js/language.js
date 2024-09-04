@@ -6,12 +6,12 @@ $(document).ready(function () {
 });
 
 function get_translate_file() {
-
-
     $('#translate_form').empty();
-    var file_name = $('#file_name').val();
-    var id = $('#id').val();
+    var file_name      = $('#file_name').val();
+    var id             = $('#id').val();
     var translate_file = $('.translate_file').val();
+    console.log(translate_file);
+
     $.post(`${translate_file}`, {
         _token: $('meta[name="csrf-token"]').attr('content'),
         file_name: file_name,

@@ -36,6 +36,7 @@ class SingleCompanyPricingPlanConroller extends Controller
         ) {
             return redirect()->route('single-company.deactivated');
         }
+
         try {
             $data['title']          = _trans('common.Upgrade Plan');
             $data['planFeatures']   = fetchDataViaAPI(env("APP_URL") . '/api/saas/main-company/plan-features');

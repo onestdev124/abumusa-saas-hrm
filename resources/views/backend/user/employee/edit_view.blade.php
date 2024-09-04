@@ -71,7 +71,7 @@
                             <div class="form-group mb-3">
                                 <label for="name" class="form-label">{{ _trans('common.Phone') }} <span
                                         class="text-danger">*</span></label>
-                                <input type="number" name="phone" placeholder="{{ _trans('common.Phone') }}"
+                                <input type="text" name="phone" placeholder="{{ _trans('common.Phone') }}"
                                     autocomplete="off" class="form-control ot-form-control ot-input"
                                     value="{{ old('phone', $data['show']->phone) }}" required>
                                 @if ($errors->has('phone'))

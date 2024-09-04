@@ -32,19 +32,16 @@
                             </div>
 
                             <div class="align-self-center d-flex flex-wrap gap-2">
-                                <!-- add btn -->
-                                @if (hasPermission('role_create'))
-                                    <div class="align-self-center">
-                                        <a href="{{ route('saas.company.create') }}" role="button" class="btn-add" data-bs-toggle="tooltip"
-                                            {{-- onclick="mainModalOpen(`{{ route('saas.company.create') }}`)" --}}
-                                            data-bs-placement="right" data-bs-title="{{ _trans('common.Add') }}">
-                                            <span><i class="fa-solid fa-plus"></i> </span>
-                                            <span class="d-none d-xl-inline">{{ _trans('common.Create') }}</span>
-                                        </a>
-                                    </div>
-                                @endif
-                                <!-- daterange -->
+                                <div class="align-self-center">
+                                    <a href="{{ route('saas.company.create') }}" role="button" class="btn-add" data-bs-toggle="tooltip"
+                                        {{-- onclick="mainModalOpen(`{{ route('saas.company.create') }}`)" --}}
+                                        data-bs-placement="right" data-bs-title="{{ _trans('common.Add') }}">
+                                        <span><i class="fa-solid fa-plus"></i> </span>
+                                        <span class="d-none d-xl-inline">{{ _trans('common.Create') }}</span>
+                                    </a>
+                                </div>
                             </div>
+
                             <!-- search -->
                             <div class="align-self-center">
                                 <div class="search-box d-flex">
@@ -76,16 +73,29 @@
                                                 {{ _trans('common.Inactive') }} <span class="count">(0)</span>
                                             </a>
                                         </li>
-                                        <li>
+                                        {{-- <li>
                                             <a class="dropdown-item" href="#"
                                                 onclick="tableAction('delete', `{{ route('roles.delete_data') }}`)">
                                                 <span class="icon mr-16"><i class="fa-solid fa-trash-can"></i></span>
                                                 {{ _trans('common.Delete') }} <span class="count">(0)</span>
                                             </a>
-                                        </li>
+                                        </li> --}}
                                     </ul>
                                 </div>
                             </div>
+
+                            {{-- trahs list --}}
+                            @if ($data["trashListCount"])
+                                <div class="align-self-center d-flex flex-wrap gap-2">
+                                    <div class="align-self-center">
+                                        <a href="{{ route('saas.company.trash.list') }}" role="button" class="btn-add" data-bs-toggle="tooltip"
+                                            data-bs-placement="right" data-bs-title="{{ _trans('common.Trash List') }}">
+                                            <span class="d-none d-xl-inline"><i class="fa-regular fa-trash-can"></i> {{ _trans('common.Trash list') }}</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            @endif
+
                             {{-- exportOnMobileDevice --}}
                             <div class="d-flex d-lg-none">
                                 @include('backend.partials.buttons')

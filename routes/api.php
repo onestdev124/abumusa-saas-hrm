@@ -52,7 +52,7 @@ use App\Models\Tenant;
 |
 */
 
-if (!in_array(currentUrl(), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas') ) {
+if (!in_array(url('/'), config('tenancy.central_domains')) && config('app.mood') === 'Saas' && isModuleActive('Saas') ) {
     $middleware = [];
 
     if (!config('app.single_db')) {
@@ -78,6 +78,8 @@ Route::middleware($middleware)->group(
             Route::group(['prefix' => 'company-list'], function () {
                 Route::get('/', [AuthController::class, 'companyList'])->name('company-list');
             });
+
+            Route::get('app/brandings', [AppSettingsController::class, 'getBrandings']);
 
 
             Route::post('login', [AuthController::class, 'login']);

@@ -12,7 +12,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="mailto:sales@taqanah.com">
+                        <a href="mailto:sales@onesttech.com">
                             <i class="fa-solid fa-envelope"></i>
                             <span>{{ base_settings('email') }}</span>
                         </a>
@@ -42,7 +42,7 @@
     <nav class="navbar ot-navbar navbar-expand-lg navbar-light bg-light bg-transparent">
         <div class="container">
             <!-- Logo -->
-            <a class="logo" href="{{ currentUrl() }}">
+            <a class="logo" href="{{ url('/') }}">
                 <img class="full-logo light_logo saas-logo" src="{{ logo_dark(@base_settings('company_logo_frontend')) }}" alt="white">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"

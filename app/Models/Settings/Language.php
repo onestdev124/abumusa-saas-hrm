@@ -9,6 +9,8 @@ class Language extends BaseModel
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     public function getIsRtlAttribute()
     {
         if ($this->rtl == 1) {

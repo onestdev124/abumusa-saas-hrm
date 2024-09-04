@@ -26,10 +26,12 @@ class SettingsSeeder extends Seeder
 
     protected function settings()
     {
-        $companyName = 'Taqanah HR';
-        $email = 'info@taqanah.com';
-        $phone = '+62 (0) 000 0000 00';
-        $address = 'House #148, Road #13/B, Block-E, Banani, Dhaka, Bangladesh';
+        $input = session()->get('input');
+
+        $companyName = $input['company_name'] ?? 'Onesttech';
+        $email = $input['email'] ?? 'info@onesttech.com';
+        $phone = $input['phone'] ?? '0XXXXXXXXXX';
+        $address = $input['address'] ?? 'Unknown Street, Texas, USA';
 
         $settings = [
             'company_name'              => $companyName,
@@ -46,10 +48,11 @@ class SettingsSeeder extends Seeder
             'company_description'       => $companyName . ' believes in painting the perfect picture of your idea while maintaining industry standards.',
             
             
-            'default_theme'             => 'app_theme_1',
+            'default_theme'             => 'app_theme_4',
             'app_theme_1'               => 'static/app-screen/screen-1.png',
             'app_theme_2'               => 'static/app-screen/screen-2.png',
             'app_theme_3'               => 'static/app-screen/screen-3.png',
+            'app_theme_4'               => 'static/app-screen/screen-4.png',
             
             
             'email'                     => $email,
@@ -127,8 +130,8 @@ class SettingsSeeder extends Seeder
             s0.parentNode.insertBefore(s1,s0);
             })();
             </script>';
-            $settings['meta_title']                    = 'Taqanah HR';
-            $settings['meta_description']              = 'Taqanah HR revolutionizes human resource management, offering a comprehensive solution for businesses. Streamline your HR processes, from recruitment to employee management, with advanced features and intuitive tools. Optimize workforce efficiency, enhance employee engagement, and stay compliant effortlessly. Explore the power of Taqanah HR for a seamless and strategic approach to HR.';
+            $settings['meta_title']                    = 'Onesttech';
+            $settings['meta_description']              = 'Onesttech revolutionizes human resource management, offering a comprehensive solution for businesses. Streamline your HR processes, from recruitment to employee management, with advanced features and intuitive tools. Optimize workforce efficiency, enhance employee engagement, and stay compliant effortlessly. Explore the power of Onesttech for a seamless and strategic approach to HR.';
             $settings['meta_keywords']                 = 'HR management software, Human resource solution, Employee management tool, Workforce optimization, Employee engagement platform, Compliance management, HR software solution, Talent management system.';
             $settings['meta_image']                    = '';
             $settings['is_demo_checkout']              = 1;

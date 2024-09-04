@@ -4,9 +4,11 @@ namespace App\Http\Controllers\coreApp\Setting;
 
 use Illuminate\Http\Request;
 use App\Models\Settings\Language;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Settings\HrmLanguage;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
@@ -19,7 +21,7 @@ class LanguageSettingController extends Controller
 {
     use ApiReturnFormatTrait;
 
-    private $languate;
+    private $language;
     private $hrm_languate;
     public $model;
     public function __construct(LanguageRepository $language, HrmLanguageRepository $hrm_languate, Language $model)
@@ -48,35 +50,44 @@ class LanguageSettingController extends Controller
         return $this->hrm_languate->dataTable();
     }
 
-    public function setup($language)
+    public function setup($id)
     {
-        $selected_language = $this->language->getById($language);
-        $local = $selected_language->code;
-        $langPath = resource_path('lang/' . $local . '/');
+        try {
+            $selected_language = $this->model->where("company_id", Auth::user()->company_id)->where("id", $id)->first();
+            $local = $selected_language->code;
+            $langPath = resource_path('lang/' . $local . '/');
 
-        if (!file_exists($langPath)) {
-            mkdir($langPath, 0777, true);
+            if (!file_exists($langPath)) {
+                mkdir($langPath, 0777, true);
 
-            foreach (scandir(base_path('resources/lang/default/')) as $key => $value) {
-                if ($value != '.' && $value != '..') {
-                    $file1 = base_path('resources/lang/default/' . $value);
-                    if (!file_exists(base_path('resources/lang/' . $selected_language->code . '/' . $value))) {
-                        copy($file1, base_path('resources/lang/' . $selected_language->code . '/' . $value));
+                foreach (scandir(base_path('resources/lang/default/')) as $key => $value) {
+                    if ($value != '.' && $value != '..') {
+                        $file1 = base_path('resources/lang/default/' . $value);
+                        if (!file_exists(base_path('resources/lang/' . $selected_language->code . '/' . $value))) {
+                            copy($file1, base_path('resources/lang/' . $selected_language->code . '/' . $value));
+                        }
                     }
                 }
             }
+
+            
+            
+            $data['title'] = $selected_language->name . ' Language Setup';
+            $data['language'] = $selected_language;
+
+            return view('backend.language.setup', compact('data'));
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+
+            return back();
         }
-
-        $data['title'] = $selected_language->name . ' Language Setup';
-        $data['language'] = $selected_language;
-
-        return view('backend.language.setup', compact('data'));
+        
     }
 
     public function get_translate_file(Request $request)
     {
         try {
-            $language = $this->language->getById($request->id);
+            $language = $this->model->where("company_id", Auth::user()->company_id)->where("id", $request->id)->first();
 
             $file_name = explode('.', $request->file_name);
             $languages = Lang::get($file_name[0]);
@@ -134,6 +145,7 @@ class LanguageSettingController extends Controller
                 "translatable_file_name" => $translatable_file_name
             ]);
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             Toastr::error(_trans('response.Something went wrong.'), 'Error');
             return back();
         }
@@ -146,9 +158,9 @@ class LanguageSettingController extends Controller
             return redirect()->back();
         }
 
-
         try {
-            $language = $this->language->getById($request->id);
+            // $language = $this->language->getById($request->id);
+            $language = $this->model->where("company_id", Auth::user()->company_id)->where("id", $request->id)->first();
 
             $file_name = $request->translatable_file_name;
 
@@ -176,12 +188,12 @@ class LanguageSettingController extends Controller
             Toastr::success(_trans('response.language term updated successfully'), 'Success');
             return back();
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             Toastr::error(_trans('response.Something went wrong.'), 'Error');
             return back();
         }
     }
 
-    
     public function makeDefault($language_id)
     {
         if (config('app.style') === 'demo' || env('APP_STYLE') === "demo") {
@@ -203,6 +215,7 @@ class LanguageSettingController extends Controller
             return back();
         }
     }
+
     public function makeActive($language_id)
     {
         if (config('app.style') === 'demo' || env('APP_STYLE') === "demo") {
@@ -224,6 +237,7 @@ class LanguageSettingController extends Controller
             return back();
         }
     }
+
     public function deleteLang($language_id)
     {
         if (config('app.style') === 'demo' || env('APP_STYLE') === "demo") {
@@ -241,6 +255,7 @@ class LanguageSettingController extends Controller
                 return back();
             }
         } catch (\Throwable $th) {
+            Log::error($th->getMessage());
             Toastr::error(_trans('response.Something went wrong.'), 'Error');
             return back();
         }
@@ -315,7 +330,6 @@ class LanguageSettingController extends Controller
             return $this->responseWithError($th->getMessage(), [], 400);
         }
     }
-
 
     public function edit($id)
     {

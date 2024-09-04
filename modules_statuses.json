@@ -1,6 +1,7 @@
 {
     "AreaBasedAttendance": true,
     "EmployeeDocuments": true,
+    "FaceAttendance": true,
     "IpBasedAttendance": true,
     "LiveTracking": true,
     "MultiBranch": true,

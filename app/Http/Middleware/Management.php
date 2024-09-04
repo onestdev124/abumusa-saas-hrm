@@ -17,10 +17,10 @@ class Management
     public function handle(Request $request, Closure $next)
     {
         //if not in array
-        // $managements=config('taqanah.managements');
+        // $managements=config('onesttech.managements');
         return $next($request);
 
-        if(!in_array(auth()->user()->id,config('taqanah.managements')))
+        if(!in_array(auth()->user()->id,config('onesttech.managements')))
             return abort(403);
 
     }

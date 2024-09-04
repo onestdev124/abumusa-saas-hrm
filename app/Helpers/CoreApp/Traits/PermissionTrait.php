@@ -684,6 +684,9 @@ trait PermissionTrait
             'employee_document_read',
             'employee_document_create',
             'employee_document_download',
+
+            'branding_read',
+            'branding_update',
         ];
 
         $subscription = [];
@@ -997,6 +1000,9 @@ trait PermissionTrait
             'conference_update',
             'conference_delete',
             'conference_join',
+
+            'branding_read',
+            'branding_update',
 
         ];
         $permissions = array_merge($team_module, $lists);
@@ -1528,6 +1534,12 @@ trait PermissionTrait
                 'support_reply' => 'support_reply',
                 'support_delete' => 'support_delete',
             ],
+
+            //Branding
+            'branding' => [
+                'read' => 'branding_read',
+                'update' => 'branding_update',
+            ],
         ];
     }
 
@@ -1595,12 +1607,12 @@ trait PermissionTrait
             $companyId = $company->id;
             $slug = ($companyId == 1) ? 'superadmin' : 'admin';
 
-            $userEmail = ($count != 0) ? "admin" . $count . "@taqanah.com" : "admin@taqanah.com";
+            $userEmail = ($count != 0) ? "admin" . $count . "@onesttech.com" : "admin@onesttech.com";
 
             // Create user for the first role
             $list1 = [
                 'name' => "Super Admin",
-                'email' => time() . '@taqanah.com',
+                'email' => time() . '@onesttech.com',
                 'is_admin' => 1,
                 'is_hr' => 0,
                 'role_id' => 1,
@@ -1639,7 +1651,7 @@ trait PermissionTrait
                 foreach ($roles as $key => $role) {
                     $list = [
                         'name' => $role->name,
-                        'email' => $role->name . '@taqanah.com',
+                        'email' => $role->name . '@onesttech.com',
                         'is_admin' => 1,
                         'is_hr' => 0,
                         'role_id' => $role->id,

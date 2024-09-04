@@ -191,11 +191,11 @@
                 <div class="profile-navigate mt-0 cursor-pointer " id="profile_expand" data-bs-toggle="dropdown"
                      role="navigation">
                     <div class="profile-photo">
-                        <img  src="{{ uploaded_asset(@Auth::user()->avatar_id) }}" alt="profile">
+                        <img  src="{{ uploaded_asset(auth()->user()->avatar_id) }}" alt="profile">
                     </div>
                     <div class="profile-info md-none">
-                        <h6>{{ @Auth::user()->name }}</h6>
-                        <p> {{ @Auth::user()->designation->title }}, {{ auth()->user()->company->company_name }}</p>
+                        <h6>{{ auth()->user()->name }}</h6>
+                        <p>{{ auth()->user()->designation->title }}, {{ auth()->user()->company->company_name }}</p>
                     </div>
                 </div>
                 <div class="dropdown-menu dropdown-menu-end profile-expand-dropdown top-navbar-dropdown-menu ot-card pa-0"

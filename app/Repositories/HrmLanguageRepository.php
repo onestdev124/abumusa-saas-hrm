@@ -6,6 +6,7 @@ use App\Models\Settings\Language;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Settings\HrmLanguage;
+use Illuminate\Support\Facades\Auth;
 use App\Helpers\CoreApp\Traits\ApiReturnFormatTrait;
 use App\Models\coreApp\Relationship\RelationshipTrait;
 use App\Repositories\Settings\CompanyConfigRepository;
@@ -30,7 +31,8 @@ class HrmLanguageRepository extends BaseRepository
 
     public function dataTable()
     {
-        $hrm_languages = $this->model->get();
+        $hrm_languages = $this->model->where('company_id', Auth::user()->company_id)->get();
+
         return datatables()->of($hrm_languages)
 
             ->addColumn('action', function ($data) {
@@ -91,15 +93,16 @@ class HrmLanguageRepository extends BaseRepository
     {
         return $this->model->pluck($data);
     }
+
     public function makeDefault($id)
     {
         try {
 
             DB::beginTransaction();
 
-            $this->model->wherein('is_default', [1])->update(array('is_default' => 0));
+            $this->model->wherein('is_default', [1])->where("company_id", Auth::user()->company_id)->update(array('is_default' => 0));
 
-            $language = $this->model->where('id', $id)->first();
+            $language = $this->model->where('id', $id)->where("company_id", Auth::user()->company_id)->first();
             $language->is_default = 1;
             $language->save();
 
@@ -112,26 +115,29 @@ class HrmLanguageRepository extends BaseRepository
 
             DB::commit();
             return true;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
             return false;
         }
     }
+
     public function makeActive($id)
     {
         try {
 
             DB::beginTransaction();
 
-            $language = $this->model->where('id', $id)->first();
+            $language = $this->model->where('id', $id)->where('company_id', Auth::user()->company_id)->first();
+
             $language->status = $language->status == 1 ? 0 : 1;
             $language->save();
 
             DB::commit();
             return true;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
+            
             DB::rollBack();
-            return false;
+            throw $e;
         }
     }
 
@@ -151,30 +157,34 @@ class HrmLanguageRepository extends BaseRepository
                 unlink($file);
             }
         }
+
         rmdir($dirPath);
     }
 
     public function deleteLang($id)
     {
         try {
-
             DB::beginTransaction();
 
-            $check_default =  $this->model->find($id);
-            if ($check_default->is_default == 1) {
-                return false;
+            $language =  $this->model->where("company_id", Auth::user()->company_id)->where('id', $id)->first();
+            if ($language) {
+                if ($language->is_default == 1) {
+                    return false;
+                }
+    
+                $folder = @resource_path('lang/' . @$language->code . '/');
+                if (file_exists($folder)) {
+                    $this->deleteDir($folder);
+                }
+                $language->delete();
             }
-            $folder = @resource_path('lang/' . @$check_default->language->code . '/');
-            if (file_exists($folder)) {
-                $this->deleteDir($folder);
-            }
-            $check_default->delete();
 
             DB::commit();
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $th) {
+
             DB::rollBack();
-            return false;
+            throw $th;
         }
     }
 
@@ -197,12 +207,14 @@ class HrmLanguageRepository extends BaseRepository
 
     function table($request)
     {
-        // Log::info($request->all());
-        $data =  $this->model->query();
+        $data =  $this->model->query()->where('company_id', Auth::user()->company_id);
+
         $where = array();
+
         if ($request->search) {
             $where[] = ['name', 'like', '%' . $request->search . '%'];
         }
+
         $data = $data
             ->where($where)
             ->orderBy('is_default', 'desc')
@@ -424,11 +436,13 @@ class HrmLanguageRepository extends BaseRepository
         try {
             if (blank($this->model->where('name', $request->name)->first())) {
                 $language = new $this->model;
-                $language->name = $request->name;
-                $language->native = $request->native;
-                $language->rtl = $request->rtl;
-                $language->status = $request->status;
-                $language->code = $request->code;
+
+                $language->name       = $request->name;
+                $language->native     = $request->native;
+                $language->rtl        = $request->rtl;
+                $language->status     = $request->status;
+                $language->code       = $request->code;
+                $language->company_id = Auth::user()->company_id;
                 $language->save();
                 return $this->responseWithSuccess(_trans('message.Language store successfully.'), 200);
             } else {
@@ -438,23 +452,26 @@ class HrmLanguageRepository extends BaseRepository
             return $this->responseWithError($th->getMessage(), [], 400);
         }
     }
+
     function newUpdate($request, $id)
     {
         try {
-            if (blank($this->model->where('name', $request->name)->where('id', '!=', $id)->first())) {
-                $language = $this->model->find($id);
+            $language = $this->model->where("company_id", Auth::user()->company_id)->where('id', $id)->first();
+
+            if ($language) {
                 if ($language->is_default == 1 && $request->status == 0) {
                     return $this->responseWithError(_trans('message.Default language can not be inactive'), [], 400);
                 }
-                $language->name = $request->name;
+
+                $language->name   = $request->name;
                 $language->native = $request->native;
-                $language->rtl = $request->rtl;
+                $language->rtl    = $request->rtl;
                 $language->status = $request->status;
-                $language->code = $request->code;
+                $language->code   = $request->code;
                 $language->save();
                 return $this->responseWithSuccess(_trans('message.Language update successfully.'), 200);
             } else {
-                return $this->responseWithError(_trans('message.Data already exists'), [], 400);
+                return $this->responseWithError(_trans('message.Data not found'), [], 400);
             }
         } catch (\Throwable $th) {
             return $this->responseWithError($th->getMessage(), [], 400);

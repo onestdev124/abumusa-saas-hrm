@@ -2,17 +2,22 @@
 
 namespace App\Http\Controllers\Backend\Company;
 
+use App\Models\Branding;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use App\Models\coreApp\Setting\DateFormat;
+use App\Helpers\CoreApp\Traits\FileHandler;
 use App\Repositories\HrmLanguageRepository;
 use App\Repositories\Settings\ApiSetupRepository;
 use App\Repositories\Settings\CompanyConfigRepository;
 
 class CompanyConfigController extends Controller
 {
+    use FileHandler;
     protected  $config_repo;
     protected $apiSetupRepo;
     protected $hrmLanguageRepo;
@@ -146,6 +151,79 @@ class CompanyConfigController extends Controller
         } else {
             Toastr::error(_trans('response.Something went wrong!'), 'Error');
             return redirect()->back();
+        }
+    }
+
+    public function brandings(Request $request)
+    {
+        if ($request->method() == 'POST') {
+
+            if (!hasPermission('branding_update')) {
+                abort(403);
+            }
+
+            try {
+                $data = $request->except('_token');
+                if ($request->has('logo')) {
+
+                    $branding = Branding::where(currentCompanyCurrentBranch())->where('name', 'logo_url')->first();
+                    
+                    if ($branding && file_exists($branding->value)) {
+                        try {
+                            $this->deleteFile($branding->value);
+                            unlink($branding->value);
+                        } catch (\Throwable $th) {}
+                    }
+
+                    $uploadImage = $this->uploadImage(request()->file('logo'), 'uploads/brandings/logo');
+                    $data['logo_url'] = $uploadImage->img_path;
+                    $data['logo'] = $uploadImage->id;
+                }
+
+                foreach ($data as $name => $value) {
+                    Branding::updateOrCreate([
+                        'name'          => $name,
+                        'company_id'    => userCompanies(),
+                    ], [
+                        'value'         => $value
+                    ]);
+                }
+
+                Toastr::success(_trans('settings.Branding settings updated successfully'), 'Success');
+                return redirect()->back();
+            } catch (\Exception $e) {
+                Toastr::error(_trans('response.Something went wrong!'), 'Error');
+                return redirect()->back();
+            }
+        } else {
+            $data['title'] = _trans('settings.Brandings');
+            $data['fontFamilies'] = $this->getGoogleFonts();
+            $data['brandings'] = Branding::where(currentCompanyCurrentBranch())->pluck('value', 'name');
+            return view('backend.company_setup.branding')->with($data);
+        }
+    }
+
+
+    private function getGoogleFonts()
+    {
+        $apiKey = env('GOOGLE_FONTS_API_KEY');
+        if (isset($apiKey)) {
+            $fonts = Cache::get('google_fonts_list');
+            if (!$fonts) {
+                // Request to retrieve all fonts
+                $response = Http::get('https://www.googleapis.com/webfonts/v1/webfonts?key=' . $apiKey);
+                $fontFamilies = $response->json('items');
+                // Extract font families only
+                $fonts = array_map(function ($font) {
+                    return $font['family'];
+                }, $fontFamilies);
+                // Cache the results for a day
+                Cache::put('google_fonts_list', $fonts, now()->addDay());
+            }
+            return $fonts;
+        } else {
+            Toastr::error(_trans('Google Fonts API key not found'), 'Error');
+            return [];
         }
     }
 }

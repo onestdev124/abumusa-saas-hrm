@@ -3,10 +3,12 @@
 namespace Modules\Saas\Http\Controllers;
 
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Models\Company\Company;
 use Illuminate\Routing\Controller;
 use App\Models\Hrm\Country\Country;
+use Illuminate\Support\Facades\Log;
 use Brian2694\Toastr\Facades\Toastr;
 use Modules\Saas\Entities\PlanFeature;
 use Modules\Saas\Entities\PlanDurationType;
@@ -16,22 +18,18 @@ use Modules\Saas\Http\Requests\CompanyRequest;
 use Modules\Saas\Enums\PricingPlanDurationType;
 use Modules\Saas\Repositories\CompanyRepository;
 use App\Helpers\CoreApp\Traits\ApiReturnFormatTrait;
-use GuzzleHttp\Client;
 use Modules\Saas\Http\Requests\CheckoutStoreRequest;
 
 class SaasCompanyController extends Controller
 {
     use ApiReturnFormatTrait;
+
     protected $companyRepository;
 
     public function __construct(CompanyRepository $companyRepository)
     {
         $this->companyRepository = $companyRepository;
     }
-    /**
-     * Display a listing of the resource.
-     * @return Renderable
-     */
 
     public function companyList()
     {
@@ -59,17 +57,29 @@ class SaasCompanyController extends Controller
         if ($request->ajax()) {
             return $this->companyRepository->table($request);
         }
-        $data['title'] = _trans('common.Companies');
-        $data['class'] = 'company_table';
-        $data['fields'] = $this->companyRepository->fields();
-        $data['checkbox'] = true;
+
+        $data['title']          = _trans('common.Companies');
+        $data['class']          = 'company_table';
+        $data['fields']         = $this->companyRepository->fields();
+        $data['checkbox']       = true;
+        $data['trashListCount'] = $this->companyRepository->trashListCount();
+
         return view('saas::company.index', compact('data'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     * @return Renderable
-     */
+    public function trashList(Request $request)
+    {
+        if ($request->ajax()) {
+            return $this->companyRepository->trashListTable($request);
+        }
+
+        $data['title']  = _trans('common.Company trash list');
+        $data['class']  = 'company_table_trash_list';
+        $data['fields'] = $this->companyRepository->fields();
+
+        return view('saas::company.trash_list', compact('data'));
+    }
+
     public function create()
     {
         try {
@@ -127,10 +137,6 @@ class SaasCompanyController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     * @return Renderable
-     */
     public function createModal()
     {
         try {
@@ -144,11 +150,6 @@ class SaasCompanyController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * @param Request $request
-     * @return Renderable
-     */
     public function store(CheckoutStoreRequest $request)
     {
         try {
@@ -166,21 +167,11 @@ class SaasCompanyController extends Controller
         }
     }
 
-    /**
-     * Show the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
     public function show($id)
     {
         return view('saas::show');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
     public function edit(Company $company)
     {
         try {
@@ -202,12 +193,7 @@ class SaasCompanyController extends Controller
         }
         return $this->companyRepository->statusUpdate($request);
     }
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
-     */
+
     public function update(Request $request, $id)
     {
         try {
@@ -218,13 +204,48 @@ class SaasCompanyController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
-    public function destroy($id)
+    public function delete($id)
     {
-        //
+        try {
+            $this->companyRepository->destroy($id);
+
+            Toastr::success("Company deleted successfully", 'Success');
+            return redirect()->route('saas.company.list');
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+
+            Toastr::error(_trans('response.Something went wrong.'), 'Error');
+            return redirect()->back();
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $this->companyRepository->restore($id);
+
+            Toastr::success("Company restore successfully", 'Success');
+            return redirect()->route('saas.company.list');
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+
+            Toastr::error(_trans('response.Something went wrong.'), 'Error');
+            return redirect()->back();
+        }
+    }
+
+    public function permanentDelete($id)
+    {
+        try {
+            $this->companyRepository->permanentDelete($id);
+
+            Toastr::success("Company permanently deleted successfully", 'Success');
+            return redirect()->route('saas.company.trash.list');
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+
+            Toastr::error(_trans('response.Something went wrong.'), 'Error');
+            return redirect()->back();
+        }
     }
 }

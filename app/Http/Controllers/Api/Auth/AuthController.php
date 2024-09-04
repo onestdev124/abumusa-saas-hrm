@@ -3,17 +3,19 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Models\User;
+use App\Models\Branding;
 use Illuminate\Http\Request;
 use App\Models\Company\Company;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\ProfileRepository;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Validator;
+use GuzzleHttp\Exception\RequestException;
 use Modules\Saas\Entities\UserTenantMapping;
 use App\Helpers\CoreApp\Traits\ApiReturnFormatTrait;
-use GuzzleHttp\Exception\RequestException;
 
 class AuthController extends Controller
 {
@@ -33,36 +35,59 @@ class AuthController extends Controller
 
     public function companyList()
     {
-        $data = Company::where(['status_id' => 1, 'is_main_company' => 'no'])->get();
-        if(config('app.mood')==="Saas" && isModuleActive("Saas")){  //Saas
-            $collection = $data->map(function ($data) {
-                $subdomain = $data->subdomain;
-                if ($subdomain) {
-                    if (env('APP_HTTPS')) {
-                        $url = 'https://' . $subdomain . '/api/V11/';
-                    } else {
-                        $url = 'http://' . $subdomain . '/api/V11/';
-                    } 
+        $companies  = Company::query()
+                    ->where('status_id', 1)
+                    ->when(config('app.mood') === "Saas" && isModuleActive("Saas"), 
+                        fn ($q) => $q->where('is_main_company', 'no')
+                    )
+                    ->get();
+
+        $collection = $companies->map(function ($data) {
+
+            $subdomain = $data->subdomain;
+            
+            if ($subdomain) {
+                if (env('APP_HTTPS')) {
+                    $url = 'https://' . $subdomain . '/api/V11/';
                 } else {
-                    $url = url('/api/V11/');
-                }
-                return [
-                    'id' => $data->id,
-                    'company_name' => $data->company_name,
-                    'subdomain' => $subdomain ?? env('APP_URL'),
-                    'url' => $url,
-                ];
-            });
-        } else{  //Non-saas
-            $collection = [
-                    [
-                    'id' => 1,
-                    'company_name' => env('APP_NAME'),
-                    'subdomain' => @base_settings('company_domain'),
-                    'url' => 'https://'. @base_settings('company_domain') .'/api/V11/',
-                    ]
+                    $url = 'http://' . $subdomain . '/api/V11/';
+                } 
+            } else {
+                $url = url('/api/V11/');
+            }
+
+            if (!config('app.single_db') && config('app.mood') === "Saas" && isModuleActive("Saas")) {
+                $brandingData = fetchDataViaAPI($url . '/app/brandings');
+                $logo_url     = $brandingData['logo_url'];
+                $app_name     = $brandingData['app_name'];
+                $font_family  = $brandingData['font_family'];
+            } else {
+                $brandings = Branding::where('company_id', $data->id)->pluck('value', 'name');
+                $brandingData = $brandings->map(function ($value) {
+                    if (strpos($value, '#') !== false) {
+                        $value = str_replace('#', '0xFF', $value);
+                    }
+
+                    return $value;
+                });
+
+                $logo_url    = $brandingData['logo_url'];
+                $app_name    = $brandingData['app_name'];
+                $font_family = $brandingData['font_family'];
+            }
+            
+            return [
+                'id'           => $data->id,
+                'company_name' => $data->company_name,
+                'subdomain'    => $subdomain ?? env('APP_URL'),
+                'url'          => $url,
+                'branding'     => $brandingData,
+                'logo_url'     => $logo_url,
+                'app_name'     => $app_name,
+                'font_family'  => $font_family,
             ];
-        }
+        });
+        
         return $this->responseWithSuccess('Company List', $collection, 200);
     }
     

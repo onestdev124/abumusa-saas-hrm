@@ -5,24 +5,30 @@ namespace Modules\Saas\Repositories;
 use App\Models\User;
 use App\Models\Branch;
 use App\Models\Tenant;
+use App\Models\Upload;
+use App\Models\Branding;
 use App\Models\Role\Role;
 use Illuminate\Support\Str;
 use App\Models\Subscription;
 use App\Models\Company\Company;
+use App\Models\Settings\Currency;
+use App\Models\Settings\Language;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\Settings\HrmLanguage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Hrm\Attendance\Weekend;
 use Illuminate\Support\Facades\Config;
 use App\Models\coreApp\Setting\Setting;
 use Illuminate\Support\Facades\Artisan;
 use App\Models\Hrm\AppSetting\AppScreen;
+use App\Repositories\CurrencyRepository;
+use App\Repositories\LanguageRepository;
 use Modules\Saas\Entities\SaasSubscription;
 use Modules\Saas\Entities\UserTenantMapping;
 use App\Models\coreApp\Setting\CompanyConfig;
 use App\Helpers\CoreApp\Traits\PermissionTrait;
-use App\Models\Upload;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Modules\Saas\Events\SubscriptionApproveEvent;
 use Modules\Saas\Services\Backend\SubscriptionService;
 
@@ -31,10 +37,14 @@ class SubscriptionRepository
     use PermissionTrait;
 
     protected $subscription;
+    protected $currencyRepository;
+    protected $languageRepository;
 
     public function __construct(SaasSubscription $subscription)
     {
-        $this->subscription = $subscription;
+        $this->subscription       = $subscription;
+        $this->currencyRepository = new CurrencyRepository();
+        $this->languageRepository = new LanguageRepository();
     }
 
     function fields()
@@ -170,13 +180,14 @@ class SubscriptionRepository
             $tenantDomain = $tenantSubdomain . '.' . $centralDomain;
 
             if (config('app.single_db')) {
+                DB::beginTransaction();
                 $this->storeTenantThisDB($subscription, Company::where('id', $subscription->company_id)->first());
             } else {
                 $this->storeTenantNewDB($subscription, $tenantDomain);
             }
 
             SaasSubscription::where('id', $id)->update([
-                'status_id' => 5, 
+                'status_id' => 5,
                 'is_processing_for_approve' => 0,
                 'is_running_subscription' => 1
             ]);
@@ -187,11 +198,16 @@ class SubscriptionRepository
 
             (new SubscriptionService)->sendSubscriptionApproveMail($subscription);
 
+            if (config('app.single_db')) {
+                DB::commit();
+            }
         } catch (\Throwable $e) {
+            if (config('app.single_db')) {
+                DB::rollBack();
+            }
             Log::error('newSubscription Error: ' . $e);
         }
     }
-
 
     protected function storeTenantNewDB($subscription, $tenantDomain)
     {
@@ -256,6 +272,12 @@ class SubscriptionRepository
         $this->storeCompanyConfigData($company);
 
         $this->storeCompanyAppScreenData($subscription, $company);
+
+        $this->storeCompanyCurrencyData($company);
+
+        $this->storeCompanyLanguageData($company);
+
+        $this->storeBrandingsData($company, $branch);
     }
 
     protected function storeCompanyBranchData($company)
@@ -278,11 +300,11 @@ class SubscriptionRepository
                 $isWeekend = 'yes';
             }
             Weekend::create([
-                'name' => $day,
+                'name'       => $day,
                 'is_weekend' => $isWeekend,
-                'status_id' => 1,
+                'status_id'  => 1,
                 'company_id' => $company->id,
-                'branch_id' => $branch->id,
+                'branch_id'  => $branch->id,
             ]);
         }
 
@@ -345,7 +367,7 @@ class SubscriptionRepository
             'language'                  => 'en',
             
 
-            'default_theme'             => 'app_theme_1',
+            'default_theme'             => 'app_theme_4',
             
 
             'mail_mailer'               => 'smtp',
@@ -411,33 +433,34 @@ class SubscriptionRepository
             'app_theme_1'               => $companyDir . '/app-screen/screen-1.png',
             'app_theme_2'               => $companyDir . '/app-screen/screen-2.png',
             'app_theme_3'               => $companyDir . '/app-screen/screen-3.png',
+            'app_theme_4'               => $companyDir . '/app-screen/screen-4.png',
             'backend_image'             => $companyDir . '/logo/background_image.png',
         ];
 
         foreach($settingFiles ?? [] as $name => $path) {
             $upload = Upload::firstOrCreate([
-                'company_id' => $company->id,
+                'company_id'         => $company->id,
                 'file_original_name' => $name,
-                'file_name' => $name . '.png',
-                'img_path' => $path,
-                'big_path' => $path,
-                'small_path' => $path,
-                'thumbnail_path' => $path,
+                'file_name'          => $name . '.png',
+                'img_path'           => $path,
+                'big_path'           => $path,
+                'small_path'         => $path,
+                'thumbnail_path'     => $path,
             ], [
                 'extension' => '.png',
-                'type' => 'png',
+                'type'      => 'png',
                 'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'width'     => 100,
+                'height'    => 100,
             ]);
 
             Setting::firstOrCreate([
                 'company_id' => $company->id,
-                'name' => $name,
+                'name'       => $name,
             ], [
                 'value' => $upload->id
             ]);
-        }       
+        }
     }
 
     protected function storeCompanyUploadData($company)
@@ -447,177 +470,177 @@ class SubscriptionRepository
         $uploads = [
             [
                 'file_original_name' => 'background_image',
-                'file_name' => 'background_image.png',
-                'img_path' => $companyDir . '/logo/background_image.png',
-                'big_path' => $companyDir . '/logo/background_image.png',
-                'small_path' => $companyDir . '/logo/background_image.png',
-                'thumbnail_path' => $companyDir . '/logo/background_image.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'background_image.png',
+                'img_path'           => $companyDir . '/logo/background_image.png',
+                'big_path'           => $companyDir . '/logo/background_image.png',
+                'small_path'         => $companyDir . '/logo/background_image.png',
+                'thumbnail_path'     => $companyDir . '/logo/background_image.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'support',
-                'file_name' => 'support.png',
-                'img_path' => $companyDir . '/app-screen/support.png',
-                'big_path' => $companyDir . '/app-screen/support.png',
-                'small_path' => $companyDir . '/app-screen/support.png',
-                'thumbnail_path' => $companyDir . '/app-screen/support.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'support.png',
+                'img_path'           => $companyDir . '/app-screen/support.png',
+                'big_path'           => $companyDir . '/app-screen/support.png',
+                'small_path'         => $companyDir . '/app-screen/support.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/support.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'attendance',
-                'file_name' => 'attendance.png',
-                'img_path' => $companyDir . '/app-screen/attendance.png',
-                'big_path' => $companyDir . '/app-screen/attendance.png',
-                'small_path' => $companyDir . '/app-screen/attendance.png',
-                'thumbnail_path' => $companyDir . '/app-screen/attendance.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'attendance.png',
+                'img_path'           => $companyDir . '/app-screen/attendance.png',
+                'big_path'           => $companyDir . '/app-screen/attendance.png',
+                'small_path'         => $companyDir . '/app-screen/attendance.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/attendance.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'notice',
-                'file_name' => 'notice.png',
-                'img_path' => $companyDir . '/app-screen/notice.png',
-                'big_path' => $companyDir . '/app-screen/notice.png',
-                'small_path' => $companyDir . '/app-screen/notice.png',
-                'thumbnail_path' => $companyDir . '/app-screen/notice.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'notice.png',
+                'img_path'           => $companyDir . '/app-screen/notice.png',
+                'big_path'           => $companyDir . '/app-screen/notice.png',
+                'small_path'         => $companyDir . '/app-screen/notice.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/notice.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'expense',
-                'file_name' => 'expense.png',
-                'img_path' => $companyDir . '/app-screen/expense.png',
-                'big_path' => $companyDir . '/app-screen/expense.png',
-                'small_path' => $companyDir . '/app-screen/expense.png',
-                'thumbnail_path' => $companyDir . '/app-screen/expense.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'expense.png',
+                'img_path'           => $companyDir . '/app-screen/expense.png',
+                'big_path'           => $companyDir . '/app-screen/expense.png',
+                'small_path'         => $companyDir . '/app-screen/expense.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/expense.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'leave',
-                'file_name' => 'leave.png',
-                'img_path' => $companyDir . '/app-screen/leave.png',
-                'big_path' => $companyDir . '/app-screen/leave.png',
-                'small_path' => $companyDir . '/app-screen/leave.png',
-                'thumbnail_path' => $companyDir . '/app-screen/leave.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'leave.png',
+                'img_path'           => $companyDir . '/app-screen/leave.png',
+                'big_path'           => $companyDir . '/app-screen/leave.png',
+                'small_path'         => $companyDir . '/app-screen/leave.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/leave.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'approval',
-                'file_name' => 'approval.png',
-                'img_path' => $companyDir . '/app-screen/approval.png',
-                'big_path' => $companyDir . '/app-screen/approval.png',
-                'small_path' => $companyDir . '/app-screen/approval.png',
-                'thumbnail_path' => $companyDir . '/app-screen/approval.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'approval.png',
+                'img_path'           => $companyDir . '/app-screen/approval.png',
+                'big_path'           => $companyDir . '/app-screen/approval.png',
+                'small_path'         => $companyDir . '/app-screen/approval.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/approval.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'phonebook',
-                'file_name' => 'phonebook.png',
-                'img_path' => $companyDir . '/app-screen/phonebook.png',
-                'big_path' => $companyDir . '/app-screen/phonebook.png',
-                'small_path' => $companyDir . '/app-screen/phonebook.png',
-                'thumbnail_path' => $companyDir . '/app-screen/phonebook.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'phonebook.png',
+                'img_path'           => $companyDir . '/app-screen/phonebook.png',
+                'big_path'           => $companyDir . '/app-screen/phonebook.png',
+                'small_path'         => $companyDir . '/app-screen/phonebook.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/phonebook.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'visit',
-                'file_name' => 'visit.png',
-                'img_path' => $companyDir . '/app-screen/visit.png',
-                'big_path' => $companyDir . '/app-screen/visit.png',
-                'small_path' => $companyDir . '/app-screen/visit.png',
-                'thumbnail_path' => $companyDir . '/app-screen/visit.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'visit.png',
+                'img_path'           => $companyDir . '/app-screen/visit.png',
+                'big_path'           => $companyDir . '/app-screen/visit.png',
+                'small_path'         => $companyDir . '/app-screen/visit.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/visit.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'appointments',
-                'file_name' => 'appointments.png',
-                'img_path' => $companyDir . '/app-screen/appointments.png',
-                'big_path' => $companyDir . '/app-screen/appointments.png',
-                'small_path' => $companyDir . '/app-screen/appointments.png',
-                'thumbnail_path' => $companyDir . '/app-screen/appointments.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'appointments.png',
+                'img_path'           => $companyDir . '/app-screen/appointments.png',
+                'big_path'           => $companyDir . '/app-screen/appointments.png',
+                'small_path'         => $companyDir . '/app-screen/appointments.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/appointments.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'break',
-                'file_name' => 'break.png',
-                'img_path' => $companyDir . '/app-screen/break.png',
-                'big_path' => $companyDir . '/app-screen/break.png',
-                'small_path' => $companyDir . '/app-screen/break.png',
-                'thumbnail_path' => $companyDir . '/app-screen/break.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'break.png',
+                'img_path'           => $companyDir . '/app-screen/break.png',
+                'big_path'           => $companyDir . '/app-screen/break.png',
+                'small_path'         => $companyDir . '/app-screen/break.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/break.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
             [
                 'file_original_name' => 'report',
-                'file_name' => 'report.png',
-                'img_path' => $companyDir . '/app-screen/report.png',
-                'big_path' => $companyDir . '/app-screen/report.png',
-                'small_path' => $companyDir . '/app-screen/report.png',
-                'thumbnail_path' => $companyDir . '/app-screen/report.png',
-                'extension' => '.png',
-                'type' => 'png',
-                'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'file_name'          => 'report.png',
+                'img_path'           => $companyDir . '/app-screen/report.png',
+                'big_path'           => $companyDir . '/app-screen/report.png',
+                'small_path'         => $companyDir . '/app-screen/report.png',
+                'thumbnail_path'     => $companyDir . '/app-screen/report.png',
+                'extension'          => '.png',
+                'type'               => 'png',
+                'file_size'          => 0,
+                'width'              => 100,
+                'height'             => 100,
             ],
         ];
 
         foreach($uploads ?? [] as $upload) {
             Upload::firstOrCreate([
-                'company_id' => $company->id,
+                'company_id'         => $company->id,
                 'file_original_name' => $upload['file_original_name'],
-                'file_name' => $upload['file_name'],
-                'img_path' => $upload['img_path'],
-                'big_path' => $upload['big_path'],
-                'small_path' => $upload['small_path'],
-                'thumbnail_path' => $upload['thumbnail_path'],
+                'file_name'          => $upload['file_name'],
+                'img_path'           => $upload['img_path'],
+                'big_path'           => $upload['big_path'],
+                'small_path'         => $upload['small_path'],
+                'thumbnail_path'     => $upload['thumbnail_path'],
             ], [
                 'extension' => '.png',
-                'type' => 'png',
+                'type'      => 'png',
                 'file_size' => 0,
-                'width' => 100,
-                'height' => 100,
+                'width'     => 100,
+                'height'    => 100,
             ]);
         }        
     }
@@ -625,40 +648,40 @@ class SubscriptionRepository
     protected function storeCompanyConfigData($company)
     {
         $config_data = [
-            "date_format" => "d-m-Y",
-            "time_format" => "h",
-            "ip_check" => "0",
-            "leave_assign" => "0",
-            "currency_symbol" => "$",
-            "location_service" => "0",
-            "app_sync_time" => "",
-            "live_data_store_time" => "",
-            "lang" => "en",
-            "multi_checkin" => 0,
-            "currency" => 2,
-            "timezone" => "Asia/Dhaka",
-            "currency_code" => "USD",
-            'location_check' => 0,
-            'attendance_method' => 'N',
-            'google'=>'AIzaSyBVF8ZCdPLYBEC2-PCRww1_Q0Abe5GYP1c',
+            "date_format"                   => "d-m-Y",
+            "time_format"                   => "h",
+            "ip_check"                      => "0",
+            "leave_assign"                  => "0",
+            "currency_symbol"               => "$",
+            "location_service"              => "0",
+            "app_sync_time"                 => "",
+            "live_data_store_time"          => "",
+            "lang"                          => "en",
+            "multi_checkin"                 => 0,
+            "currency"                      => 2,
+            "timezone"                      => "Asia/Dhaka",
+            "currency_code"                 => "USD",
+            'location_check'                => 0,
+            'attendance_method'             => 'N',
+            'google'                        => 'AIzaSyBVF8ZCdPLYBEC2-PCRww1_Q0Abe5GYP1c',
             'is_employee_passport_required' => 0,
-            'is_employee_eid_required' => 0,
-            'leave_carryover' => 0,
+            'is_employee_eid_required'      => 0,
+            'leave_carryover'               => 0,
         ];
         
         foreach ($config_data as $key => $value) {
             CompanyConfig::firstOrCreate([
                 'company_id' => $company->id,
-                'key' => $key,
+                'key'        => $key,
             ], [
                 'value' => $value,
             ]);
         }
 
         HrmLanguage::create([
-            'company_id' => $company->id,
+            'company_id'  => $company->id,
             'language_id' => 19,
-            'is_default' => 1,
+            'is_default'  => 1,
         ]);
     }
         
@@ -712,15 +735,122 @@ class SubscriptionRepository
         
         foreach ($menus as $key => $menu) {
             $iconName = $menu . '.png';
-            AppScreen::firstOrCreate([
+            AppScreen::firstOrCreate(
+            [
                 'company_id' => $company->id,
-                'slug' => $menu
-            ], [
-                'name' => plain_text($menu),
-                'position' => $key + 1,
-                'icon' => $companyDir . "/app-screen/{$iconName}",
+                'slug'       => $menu
+            ],
+            [
+                'name'      => plain_text($menu),
+                'position'  => $key + 1,
+                'icon'      => $companyDir . "/app-screen/{$iconName}",
                 'status_id' => 1,
             ]);
+        }
+    }
+
+    protected function storeCompanyCurrencyData($company)
+    {
+        try {
+            $currencies = $this->currencyRepository->getCurrencyData();
+
+            foreach ($currencies as $currency) {
+                Currency::firstOrCreate(
+                    [
+                        'name'       => $currency[1],
+                        'code'       => $currency[2],
+                        'symbol'     => $currency[3],
+                        'company_id' => $company->id,
+                    ]
+                );
+            }
+
+
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+        }
+    }
+
+    protected function storeCompanyLanguageData($company)
+    {
+        try {
+            $languages = $this->languageRepository->getLanguageData();
+
+            foreach ($languages as $language) {
+                Language::firstOrCreate(
+                    [
+                        'code'       => $language[1],
+                        'name'       => $language[2],
+                        'company_id' => $company->id,
+                    ],
+                    [
+                        'native' => $language[3],
+                        'rtl'    => $language[4],
+                        'status' => $language[5],
+                    ]
+                );
+            }
+
+            $english = Language::where('company_id', Auth::user()->company_id)->where('code', 'en')->where("name", "English")->first();
+            $english->status = 1;
+            $english->is_default = 1;
+            $english->save();
+
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+        }
+    }
+
+    protected function storeBrandingsData($company, $branch)
+    {
+        try {
+            $companyDir = 'assets/tenant/' . subdomainName($company->subdomain);
+
+            $brandings = [
+                ['name' => 'primaryColor', 'value' => '#FFFFFF'],
+                ['name' => 'primaryLight', 'value' => '#2872c7'],
+                ['name' => 'primaryDark', 'value' => '#1b64ab'],
+                ['name' => 'cardBackgroundDefault', 'value' => '#FFFFFF'],
+                ['name' => 'cardBackgroundSubdued', 'value' => '#F0F0F0'],
+                ['name' => 'textPrimary', 'value' => '#000000'],
+                ['name' => 'textSecondary', 'value' => '#666666'],
+                ['name' => 'textTertiary', 'value' => '#999999'],
+                ['name' => 'textHint', 'value' => '#BBBBBB'],
+                ['name' => 'textDisabled', 'value' => '#DDDDDD'],
+                ['name' => 'textInversePrimary', 'value' => '#FFFFFF'],
+                ['name' => 'textInverseSecondary', 'value' => '#EEEEEE'],
+                ['name' => 'textInverseTertiary', 'value' => '#CCCCCC'],
+                ['name' => 'brandTextLink', 'value' => '#1E90FF'],
+                ['name' => 'iconPrimary', 'value' => '#000000'],
+                ['name' => 'iconSecondary', 'value' => '#666666'],
+                ['name' => 'iconDisabled', 'value' => '#DDDDDD'],
+                ['name' => 'iconInverse', 'value' => '#FFFFFF'],
+                ['name' => 'iconAccent', 'value' => '#FFA500'],
+                ['name' => 'iconNavigationBar', 'value' => '#000080'],
+                ['name' => 'iconAccentInactive', 'value' => '#FFA07A'],
+                ['name' => 'dividerPrimary', 'value' => '#CCCCCC'],
+                ['name' => 'dividerInverse', 'value' => '#333333'],
+                ['name' => 'buttonDefault', 'value' => '#007BFF'],
+                ['name' => 'buttonSecondary', 'value' => '#6C757D'],
+                ['name' => 'buttonInverse', 'value' => '#FFFFFF'],
+                ['name' => 'buttonDisabled', 'value' => '#DDDDDD'],
+                ['name' => 'container', 'value' => '#F8F9FA'],
+                ['name' => 'containerSecondary', 'value' => '#E9ECEF'],
+                ['name' => 'logo_url', 'value' => $companyDir . "/logo/branding-logo.png",],
+                ['name' => 'app_name', 'value' => $company->company_name],
+                ['name' => 'font_family', 'value' => 'Arial, sans-serif'],
+            ];
+    
+            foreach ($brandings as $branding) {
+                Branding::firstOrCreate([
+                    'name'       => $branding['name'],
+                    'value'      => $branding['value'],
+                    'company_id' => $company->id,
+                    'branch_id'  => $branch->id,
+                ]);
+            }
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
         }
     }
 

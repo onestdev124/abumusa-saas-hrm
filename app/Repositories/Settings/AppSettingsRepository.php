@@ -3,6 +3,7 @@
 namespace App\Repositories\Settings;
 
 use App\Models\User;
+use App\Models\Branding;
 use App\Enums\AttendanceMethod;
 use App\Models\UserShiftAssign;
 use Illuminate\Support\Facades\DB;
@@ -260,22 +261,24 @@ class AppSettingsRepository
 
     public function appScreenSetup()
     {
-        $data = $this->appScreen->authorizable()->get();
+        $data = $this->appScreen->where("company_id", Auth::user()->company_id)->get();
 
         return $data;
     }
 
     public function appScreenSetupUpdate($request)
     {
+        $data = $this->appScreen->where("id", $request->id)->where("company_id", Auth::user()->company_id)->first();
 
-
-        $data = \App\Models\Hrm\AppSetting\AppScreen::find($request->id);
-        if ($request->status == 'true') {
-            $data->status_id = 1;
-        } else {
-            $data->status_id = 4;
+        if ($data) {
+            if ($request->status == 'true') {
+                $data->status_id = 1;
+            } else {
+                $data->status_id = 4;
+            }
+    
+            $data->save();
         }
-        $data->save();
 
         return true;
     }
@@ -473,5 +476,17 @@ class AppSettingsRepository
             return redirect()->back();
         }
     }
-    
+    public function branding()
+    {
+        $data = Branding::pluck('value', 'name');
+
+        $responseData = $data->map(function ($value) {
+            if (strpos($value, '#') !== false) {
+                $value = str_replace('#', '0xFF', $value);
+            }
+            return $value;
+        });
+
+        return $this->responseWithSuccess(_trans('message.Success'), $responseData);
+    }
 }

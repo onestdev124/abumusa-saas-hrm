@@ -1,6 +1,6 @@
 @if (!isMainCompany() && config('app.branch') === 'MultiBranch' && isModuleActive('MultiBranch'))
     @php
-        $branches = App\Models\Branch::authorizable()->where('status_id', 1)->get();
+        $branches = config('app.single_db') ? \App\Models\Branch::authorizable()->where('status_id', 1)->get() : \App\Models\Branch::where('status_id', 1)->get();
     @endphp
     <div class="single-select d-none d-lg-block mr-16">
         <input type="hidden" id="change_branch_url" value="{{ route('branches.ajaxBranchChange') }}">

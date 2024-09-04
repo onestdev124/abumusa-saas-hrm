@@ -2,6 +2,7 @@
 
 namespace Modules\Saas\Repositories;
 
+use Carbon\Carbon;
 use App\Models\Tenant;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
@@ -12,6 +13,7 @@ use App\Models\Hrm\Country\Country;
 use Illuminate\Support\Facades\Log;
 use App\Models\Traits\RelationCheck;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Permission\Permission;
@@ -19,7 +21,9 @@ use Illuminate\Support\Facades\Config;
 use Modules\Saas\Entities\PlanFeature;
 use App\Mail\Hrm\NewTenantPasswordMail;
 use Modules\Saas\Entities\EmailTemplate;
+use App\Models\Hrm\Department\Department;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Hrm\Designation\Designation;
 use Modules\Saas\Entities\SaasSubscription;
 use App\Helpers\CoreApp\Traits\PermissionTrait;
 use Modules\Saas\Emails\SubscriptionSuccessMail;
@@ -67,17 +71,6 @@ class CompanyRepository
         // TODO: Implement index() method.
     }
 
-    // public function store($request)
-    // {
-    //     $request['slug'] = Str::slug($request->name, '-');
-    //     $this->role->query()->create($request->all());
-    // }
-
-    // public function show($id)
-    // {
-    //     return $this->role->query()->find($id);
-    // }
-
     public function update($request, $id)
     {
         $company = $this->company->where(['id' => $id])->first();
@@ -103,19 +96,7 @@ class CompanyRepository
         } catch (\Throwable $th) {}
     }
 
-    public function destroy($id)
-    {
-        try {
-            $branch = $this->company->where(['id' => $id, 'company_id' => getCurrentCompany()])->first();
-            $branch->delete();
-            return $this->responseWithSuccess(_trans('message.Branch Delete successfully.'), $branch);
-        } catch (\Throwable $th) {
-            return $this->responseWithError($th->getMessage(), [], 400);
-        }
-    }
-
     // new functions
-
     function fields()
     {
         return [
@@ -136,7 +117,6 @@ class CompanyRepository
     // data table functions
     function table($request)
     {
-
         $data = $this->company->query()->with('status');
         $where = array();
         if ($request->search) {
@@ -157,9 +137,11 @@ class CompanyRepository
                 if (hasPermission('company_update')) {
                     $action_button .= actionButton(_trans('common.Edit'), 'mainModalOpen(`' . route('saas.company.edit', $data->id) . '`)', 'modal');
                 }
-                // if (hasPermission('branch_delete') && $data->is_main_company != 'yes') {
-                //     $action_button .= actionButton(_trans('common.Delete'), '__globalDelete(' . $data->id . ',`hrm/branches/delete/`)', 'delete');
-                // }
+
+                if (hasPermission('company_delete') && $data->is_main_company != 'yes') {
+                    $action_button .= actionButton(_trans('common.Delete'), '__globalDelete(' . $data->id . ',`admin/saas/companies/delete/`)', 'delete');
+                }
+
                 $button = ' <div class="dropdown dropdown-action">
                                         <button type="button" class="btn-dropdown" data-bs-toggle="dropdown"
                                             aria-expanded="false">
@@ -223,6 +205,246 @@ class CompanyRepository
                 'pagination_html' => $data->links('backend.pagination.custom')->toHtml(),
             ],
         ];
+    }
+
+    // data table functions
+    function trashListTable($request)
+    {
+        $data = $this->company->query()->with('status')->onlyTrashed();
+
+        $where = array();
+        if ($request->search) {
+            $where[] = ['company_name', 'like', '%' . $request->search . '%'];
+        }
+
+        if (config('app.mood') == 'Saas') {
+            $where[] = ['id', '!=', 1];
+        }
+
+        $data = $data
+        ->where($where)
+        ->orderBy('id', 'DESC')
+        ->paginate($request->limit ?? 10);
+
+        return [
+            'data' => $data->map(function ($data) {
+                $action_button = '';
+                if (hasPermission('company_update')) {
+                    $action_button .= '<a href="javascript:;" class="dropdown-item" onclick="permanentDelete('. $data->id .')">
+                            Restore
+                        </a>';
+                }
+
+                if (hasPermission('company_delete') && $data->is_main_company != 'yes') {
+                    $action_button .= actionButton(_trans('common.Permanent Delete'), '__globalDelete(' . $data->id . ',`admin/saas/companies/permanent-delete/`)', 'delete');
+                }
+
+                $button = ' <div class="dropdown dropdown-action">
+                                        <button type="button" class="btn-dropdown" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                            <i class="fa-solid fa-ellipsis"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                        ' . $action_button . '
+                                        </ul>
+                                    </div>';
+                $domainUrl = "";
+                if ($data->subdomain != '') {
+                    $domainUrl = $data->subdomain;
+                }
+
+                $subscription = "";
+                if ($data->is_subscription) {
+                    $expiry_date = SaasSubscription::where('company_id', $data->id)->where('status_id', 5)->orderBy('id', 'DESC')->first()?->expiry_date;
+                    $subscription .= '<div class="d-flex flex-column"><span>' . _trans('common.Start') . ': ' . showDate($data->created_at) . '</span><span>' . _trans('common.Expiry') . ': ' . showDate($expiry_date) . '</span></div>';
+                }
+
+                $status = '<small class="badge badge-' . @$data->status->class . '">' . @$data->status->name . '</small>';
+
+                $totalSubscription = SaasSubscription::where('company_id', $data->id)->count();
+                $isRejected = SaasSubscription::where('company_id', $data->id)->where('status_id', 6)->count();
+
+                if ($totalSubscription == 1 && $isRejected) {
+                    $status .= '<br /><small class="badge badge-danger mt-1">' . _trans('common.Reject') . '</small>';
+                }
+
+                $subdomain = explode('.', $domainUrl);
+
+                $isPending = false;
+
+                if ($totalSubscription == 1) {
+                    $isPending = SaasSubscription::where('company_id', $data->id)->first()?->status_id == 2 ? true : false;
+                }
+
+                // $processing = !$isPending && !@$subdomain[1] && $data->is_main_company == 'no' ? true : false;
+
+                $subdomainURL = env('APP_HTTPS') ? 'https://' . $domainUrl : 'http://' . $domainUrl;
+
+                return [
+                    'id'                   => $data->id,
+                    'name'                 => $data->company_name,
+                    'phone'                => $data->phone,
+                    'email'                => $data->email,
+                    'employee'             => $data->total_employee,
+                    'trade_licence_number' => $data->trade_licence_number,
+                    'subdomain'            => $isPending ? _trans('common.Pending for approve') . '...' : '<a target="_blank" href="' . $subdomainURL . '">' . $domainUrl . '</a>',
+                    'subscription'         => $subscription,
+                    'status'               => $status,
+                    'action'               => $totalSubscription == 1 && $isRejected ? '' : $button,
+                ];
+            }),
+            'pagination' => [
+                'total'           => $data->total(),
+                'count'           => $data->count(),
+                'per_page'        => $data->perPage(),
+                'current_page'    => $data->currentPage(),
+                'total_pages'     => $data->lastPage(),
+                'pagination_html' => $data->links('backend.pagination.custom')->toHtml(),
+            ],
+        ];
+    }
+
+    public function destroy($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $company = $this->company->with(
+                [
+                    "users:id,company_id",
+                    "branches:id,company_id",
+                    "roles:id,company_id"
+                ]
+            )->find($id);
+
+            if (!$company) {
+                throw new \Throwable("Company not found");
+            }
+
+            // Update company deleted by
+            $company->deleted_by = Auth::id();
+            $company->status_id  = 4;
+            $company->save();
+
+            // Delete uses, branch, roles
+            $company->users()->delete();
+            $company->branches()->delete();
+            $company->roles()->delete();
+
+            // Delete department
+            DB::table('departments')
+            ->where('company_id', $company->id)
+            ->update(['deleted_at' => Carbon::now()]);
+
+            // Delete designation
+            DB::table('designations')
+            ->where('company_id', $company->id)
+            ->update(['deleted_at' => Carbon::now()]);
+
+            // Delete the company
+            $company->delete();
+
+            DB::commit();
+
+            return true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Restore the company
+            $company = $this->company->withTrashed()->find($id);
+
+            if (!$company) {
+                throw new \Throwable("Company not found");
+            }
+
+            $company->restore();
+
+            // Restore users, branches, and roles
+            $company->users()->withTrashed()->restore();
+            $company->branches()->withTrashed()->restore();
+            $company->roles()->withTrashed()->restore();
+
+            // Restore departments
+            DB::table('departments')
+            ->where('company_id', $company->id)
+            ->whereNotNull('deleted_at')
+            ->update(['deleted_at' => null]);
+
+            // Restore designations
+            DB::table('designations')
+            ->where('company_id', $company->id)
+            ->whereNotNull('deleted_at')
+            ->update(['deleted_at' => null]);
+
+            // Update company information
+            $company->restored_at = Carbon::now();
+            $company->restored_by = Auth::id();
+            $company->save();
+
+            DB::commit();
+
+            return true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function trashListCount()
+    {
+        return $this->company->onlyTrashed()->count();
+    }
+
+    public function permanentDelete($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $company = $this->company->with(
+                [
+                    "users:id,company_id",
+                    "branches:id,company_id",
+                    "roles:id,company_id"
+                ]
+            )->withTrashed()->find($id);
+
+            if (!$company) {
+                throw new \Throwable("Company not found");
+            }
+
+            // Permanently delete users, branches, and roles
+            $company->users()->forceDelete();
+            $company->branches()->forceDelete();
+            $company->roles()->forceDelete();
+
+            // Permanently delete departments
+            DB::table('departments')
+            ->where('company_id', $company->id)
+            ->delete();
+
+            // Permanently delete designations
+            DB::table('designations')
+            ->where('company_id', $company->id)
+            ->delete();
+
+            // Permanently delete the company
+            $company->forceDelete();
+
+            DB::commit();
+
+            return true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 
     // statusUpdate

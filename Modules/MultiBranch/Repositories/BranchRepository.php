@@ -5,11 +5,12 @@ namespace Modules\MultiBranch\Repositories;
 use App\Models\Branch;
 use App\Models\Role\Role;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use App\Services\Hrm\DeleteService;
 use App\Models\Traits\RelationCheck;
 use Brian2694\Toastr\Facades\Toastr;
-use App\Models\Permission\Permission;
 
+use App\Models\Permission\Permission;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\CoreApp\Traits\AuthorInfoTrait;
 use App\Helpers\CoreApp\Traits\ApiReturnFormatTrait;
@@ -46,17 +47,10 @@ class BranchRepository
         // TODO: Implement index() method.
     }
 
-  
-    // public function store($request)
-    // {
-    //     $request['slug'] = Str::slug($request->name, '-');
-    //     $this->role->query()->create($request->all());
-    // }
-
-    // public function show($id)
-    // {
-    //     return $this->role->query()->find($id);
-    // }
+    public function show($id)
+    {
+        return $this->branch->find($id);
+    }
 
     public function update($request,$branch)
     {
@@ -81,17 +75,31 @@ class BranchRepository
     public function destroy($id)
     {
         try{
-            $branch = $this->branch->where(['id' => $id, 'company_id' => auth()->user()->company_id])->first();
-            $branch->delete();
+            DB::beginTransaction();
+
+            $branch = $this->branch->where(['id' => $id, 'company_id' => auth()->user()->company_id])->firstOrFail();
+
+            if ($branch) {
+                // Delete related users, departments, designations, and roles
+                $branch->users()->delete();
+                $branch->departments()->delete();
+                $branch->designations()->delete();
+                $branch->roles()->delete();
+    
+                // Delete branch
+                $branch->delete();
+            }
+
+            DB::rollBack();
+
             return $this->responseWithSuccess(_trans('message.Branch Delete successfully.'), $branch);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return $this->responseWithError($th->getMessage(), [], 400);
         }
     }
 
-
     // new functions
-
     function fields()
     {
         return [
@@ -106,21 +114,24 @@ class BranchRepository
         ];
     }
 
-
     // data table functions
     function table($request)
     {
-        $data =  $this->branch->query()->with('status')
+        $data = $this->branch->query()->with('status')
             ->where('company_id', auth()->user()->company_id)
             ->where('name','!=','Head Office');
+
         $where = array();
+
         if ($request->search) {
             $where[] = ['name', 'like', '%' . $request->search . '%'];
         }
+
         $data = $data
             ->where($where)
             ->orderBy('id', 'DESC')
             ->paginate($request->limit ?? 2);
+
         return [
             'data' => $data->map(function ($data) {
                 $action_button = '';
@@ -180,22 +191,38 @@ class BranchRepository
         }
     }
 
-
     public function destroyAll($request)
     {
         try {
+            DB::beginTransaction();
+
             if (@$request->ids) {
-                $branch = $this->branch->where('company_id', auth()->user()->company_id)->whereIn('id', $request->ids)->update(['deleted_at' => now()]);
-                return $this->responseWithSuccess(_trans('message.Branch activate successfully.'), $branch);
+                $branches = $this->branch->where('company_id', auth()->user()->company_id)
+                ->whereIn('id', $request->ids)
+                ->get();
+
+                foreach ($branches ?? [] as $branch) {
+                    // Delete related users, departments, designations, and roles
+                    $branch->users()->delete();
+                    $branch->departments()->delete();
+                    $branch->designations()->delete();
+                    $branch->roles()->delete();
+
+                    // Delete branch
+                    $branch->delete();
+                }
+
+                DB::commit();
+
+                return $this->responseWithSuccess(_trans('message.Branch activate successfully.'), true);
             } else {
                 return $this->responseWithError(_trans('message.Branch not found'), [], 400);
             }
         } catch (\Throwable $th) {
+            DB::rollBack();
             return $this->responseWithError($th->getMessage(), [], 400);
         }
     }
-
-    //new functions
 
     function createAttributes()
     {
@@ -260,6 +287,7 @@ class BranchRepository
 
         ];
     }
+
     function editAttributes($branchModel)
     {
         return [
@@ -327,7 +355,6 @@ class BranchRepository
 
         ];
     }
-
 
     function newStore($request)
     {

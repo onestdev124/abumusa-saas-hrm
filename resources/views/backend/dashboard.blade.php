@@ -3,7 +3,7 @@
 @section('content')
 
     <div class="d-flex justify-content-between flex-wrap dashboard-heading  align-items-center pb-24 gap-3">
-        <h3 class="mb-0">{{ _trans('common.Welcome to') }} {{ config('settings.app.company_name') }}
+        <h3 class="mb-0">{{ _trans('common.Welcome to') }} {{ @base_settings('company_name') }}
             [{{ Auth::user()->name }}]</h3>
         {{-- dropdown menu --}}
         <div class="dropdown card-button">

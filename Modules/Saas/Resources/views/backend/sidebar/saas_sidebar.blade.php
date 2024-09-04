@@ -4,8 +4,8 @@
         <span class="on-half-expanded">{{ _trans('subscription.Subscriptions') }}</span>
     </a>
 </li>
-<li class="sidebar-menu-item {{ menu_active_by_route(['saas.company.list']) }}">
-    <a href="{{ route('saas.company.list') }}" class="parent-item-content {{ menu_active_by_route(['saas.company.list']) }}">
+<li class="sidebar-menu-item {{ menu_active_by_route(['saas.company.list', 'saas.company.trash.list']) }}">
+    <a href="{{ route('saas.company.list') }}" class="parent-item-content {{ menu_active_by_route(['saas.company.list', 'saas.company.trash.list']) }}">
         <i class="las la-building"></i>
         <span class="on-half-expanded">
             {{ _trans('common.Companies') }}

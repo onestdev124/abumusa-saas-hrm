@@ -41,6 +41,7 @@ class AppSettingsController extends Controller
         $data['settings'] = $this->appSettings->appScreenSetup();
         return view('backend.settings.app_setting.index', compact('data'));
     }
+
     public function appScreenSetupUpdate(Request $request)
     {
         if (demoCheck()) {
@@ -121,5 +122,10 @@ class AppSettingsController extends Controller
         } catch (\Throwable $th) {
             return response()->json(['message' => _trans('response.Something went wrong.'), 'status' => 500]);
         }
+    }
+
+    public function getBrandings()
+    {
+        return $this->appSettings->branding();
     }
 }

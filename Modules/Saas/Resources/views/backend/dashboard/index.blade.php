@@ -3,7 +3,7 @@
 @section('title', @$data['title'])
 
 @section('content')
-    <h3 class="mb-5">{{ _trans('common.Welcome to') }} {{ config('settings.app.company_name') }}
+    <h3 class="mb-5">{{ _trans('common.Welcome to') }} {{ @base_settings('company_name') }}
         [{{ Auth::user()->name }}]
     </h3>
     <div class="row">

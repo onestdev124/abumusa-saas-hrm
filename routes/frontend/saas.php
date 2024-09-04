@@ -48,7 +48,7 @@ if (config('app.mood') === "Saas" && isModuleActive("Saas")) {
     });
 
 
-    if(in_array(currentUrl(), config('tenancy.central_domains'))){
+    if(in_array(url('/'), config('tenancy.central_domains'))){
 
         Route::middleware(['frontend'])->group(function () {
             Route::get('/', [SaasFrontendController::class, 'homePage'])->name('saas.homePage');
@@ -84,11 +84,15 @@ if (config('app.mood') === "Saas" && isModuleActive("Saas")) {
                 Route::any('/company-change', 'SaasController@ajaxCompanyChange')->name('company.ajaxCompanyChange');
 
                 Route::any('companies', [SaasCompanyController::class, 'index'])->name('saas.company.list');
+                Route::any('companies/trash', [SaasCompanyController::class, 'trashList'])->name('saas.company.trash.list');
                 // Route::any('companies/create', [SaasCompanyController::class, 'createModal'])->name('saas.company.create');
                 Route::any('companies/create', [SaasCompanyController::class, 'create'])->name('saas.company.create');
                 Route::post('companies/store', [SaasCompanyController::class, 'store'])->name('saas.company.store');
                 Route::any('companies/{company}/edit', [SaasCompanyController::class, 'edit'])->name('saas.company.edit');
                 Route::post('companies/update/{company_id}', [SaasCompanyController::class, 'update'])->name('saas.company.update');
+                Route::get('companies/delete/{company_id}', [SaasCompanyController::class, 'delete'])->name('saas.company.delete');
+                Route::get('companies/restore/{company_id}', [SaasCompanyController::class, 'restore'])->name('saas.company.restore');
+                Route::get('companies/permanent-delete/{company_id}', [SaasCompanyController::class, 'permanentDelete'])->name('saas.company.permanent.delete');
 
                 Route::post('status-change', [SaasCompanyController::class, 'statusUpdate'])->name('saas.company.statusUpdate');
 
