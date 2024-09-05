@@ -11,6 +11,7 @@ use App\Models\UserDocumentRequest;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\Auth;
 use App\Models\coreApp\Setting\IpSetup;
+use App\Models\coreApp\Setting\Setting;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Hrm\AppSetting\AppScreen;
 use App\Repositories\DashboardRepository;
@@ -103,15 +104,17 @@ class AppSettingsRepository
         $data['live_tracking'] = ['app_sync_time' => $this->appSyncTime(), 'live_data_store_time' => $this->liveDataStoreTime()];
         $data['location_service'] = $this->locationService();
 
-        //$data['app_theme'] = DB::table('settings')->where('name', 'default_theme')->value('value');
-        $appTheme = DB::table('settings')->where('name', 'default_theme')->value('value');
-        if($appTheme === 'app_theme_1'){
-            $app_text = 'earth';
-        } elseif($appTheme === 'app_theme_2'){
-            $app_text = 'mars';
-        } elseif($appTheme === 'app_theme_3'){
-            $app_text = 'neptune';
-        }
+        $appTheme = Setting::where('company_id', $this->companyInformation()->id)->where('name', 'default_theme')->value('value');
+
+        $themeMap = [
+            'app_theme_1' => 'earth',
+            'app_theme_2' => 'mars',
+            'app_theme_3' => 'neptune',
+            'app_theme_4' => 'pluto'
+        ];
+
+        $app_text = $themeMap[$appTheme] ?? null;
+
         $data['app_theme'] = $app_text;
         
         $data['is_team_lead']=auth()->user()->myTeam()->count() > 0 ? true : false;
