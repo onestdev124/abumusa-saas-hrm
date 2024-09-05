@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Database\Seeders\BranchSeeder;
 use Database\Seeders\Admin\RoleSeeder;
 use Database\Seeders\Admin\UserSeeder;
 use Database\Seeders\Admin\StatusSeeder;
@@ -26,6 +27,7 @@ class SaasSingleDBSeeder extends Seeder
             CountrySeeder::class,
             StatusSeeder::class,
             CompanySeeder::class,
+            BranchSeeder::class,
             RoleSeeder::class,
             PermissionSeeder::class,
             UserSeeder::class,
